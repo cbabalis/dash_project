@@ -7,6 +7,9 @@ source: https://dash.plotly.com/datatable/conditional-formatting
 import dash
 import dash_table
 import pandas as pd
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
 import pdb
 
 
@@ -59,20 +62,47 @@ df = pd.read_csv('data/OD2019.csv')
 
 app = dash.Dash(__name__)
 
+## Drop down from here
+states = df['EL301'].unique().tolist()
+
+
+## end drop down. remove safely.
+
 df['id'] = df.index
 
-app.layout = dash_table.DataTable(
-    data=df.to_dict('records'),
-    sort_action='native',
-    columns=[{'name': i, 'id': i} for i in df.columns if i != 'id'],
-    style_table={'height':'800px', 'overflowY':'auto'},
-    style_header={
-        'backgroundColor': 'rgb(230, 230, 230)',
-        'fontWeight': 'bold'
-    },
-    style_data_conditional=highlight_max_row(df)
-)
+app.layout = html.Div([
+    html.H1('Loads Matrix'),
+    html.Br(),
 
+    html.Div(
+        children=[
+        dcc.Dropdown(
+                id='filter_dropdown',
+                options=[{'label':st, 'value':st} for st in states],
+                value = states[0]
+                ),
+        dash_table.DataTable(id='table-container') ]
+    ),
+    dash_table.DataTable(
+        data=df.to_dict('records'),
+        sort_action='native',
+        columns=[{'name': i, 'id': i} for i in df.columns if i != 'id'],
+        style_table={'height':'800px', 'overflowY':'auto'},
+        style_header={
+            'backgroundColor': 'rgb(230, 230, 230)',
+            'fontWeight': 'bold'
+        },
+        style_data_conditional=highlight_max_row(df)
+    ),
+    html.Hr(),
+    ])
+
+@app.callback(
+    Output('table-container', 'data'),
+    [Input('filter_dropdown', 'value') ] )
+def display_table(state):
+    dff = df[df['EL301']==state]
+    return dff
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='147.102.154.65', port=8053)
