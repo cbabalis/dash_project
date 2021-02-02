@@ -6,6 +6,8 @@ source: https://dash.plotly.com/datatable/conditional-formatting
 
 import dash
 import dash_table
+import dash_core_components as dcc
+import dash_html_components as html
 import pandas as pd
 import dash_core_components as dcc
 import dash_html_components as html
@@ -62,27 +64,11 @@ df = pd.read_csv('data/OD2019.csv')
 
 app = dash.Dash(__name__)
 
-## Drop down from here
-states = df['EL301'].unique().tolist()
-
-
-## end drop down. remove safely.
-
 df['id'] = df.index
 
 app.layout = html.Div([
-    html.H1('Loads Matrix'),
+    html.H1('Table of Loads'),
     html.Br(),
-
-    html.Div(
-        children=[
-        dcc.Dropdown(
-                id='filter_dropdown',
-                options=[{'label':st, 'value':st} for st in states],
-                value = states[0]
-                ),
-        dash_table.DataTable(id='table-container') ]
-    ),
     dash_table.DataTable(
         data=df.to_dict('records'),
         sort_action='native',
@@ -97,12 +83,6 @@ app.layout = html.Div([
     html.Hr(),
     ])
 
-@app.callback(
-    Output('table-container', 'data'),
-    [Input('filter_dropdown', 'value') ] )
-def display_table(state):
-    dff = df[df['EL301']==state]
-    return dff
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='147.102.154.65', port=8053)
