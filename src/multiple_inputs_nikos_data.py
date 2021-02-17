@@ -28,19 +28,30 @@ app.layout = html.Div([
             data=df.to_dict('records'),
             sort_action='native',
             columns=[{'name': i, 'id': i} for i in df.columns if i != 'id'],
-            style_table={'height':'800px', 'overflowY':'auto'},
+            style_table={'height':'500px', 'overflowY':'auto'},
             style_header={
                 'backgroundColor': 'rgb(230, 230, 230)',
                 'fontWeight': 'bold'
             }),
     ]),
     html.P(),
+    html.H2('Filters'),
     html.Div([
-        html.H2('Filters'),
+        html.H3('Select column(s)'),
         dcc.Dropdown(id='xaxis',
                      options=[{'label':i, 'value':i} for i in features],
-                     value='displacement')],
-        style={'width':'18%', 'display':'inline-block'}),
+                     value='displacement',
+                     multi=True)],
+        style={'width':'18%', 'display':'inline-block'}
+    ),
+    # checklist filters here
+    html.Div([
+        html.H3('Select some column(s)'),
+        dcc.Checklist(id='checklist',
+                     options=[{'label':i, 'value':i} for i in features],
+                     value=['Coverage'])],
+        style={'width':'68%', 'display':'inline-block'}
+    ),
 ])
 
 
