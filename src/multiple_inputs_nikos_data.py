@@ -4,11 +4,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
+import plotly.graph_objs as go
 
 import pandas as pd
 import pdb
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+import dash_bootstrap_components as dbc
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] # [dbc.themes.DARKLY] #
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -23,7 +26,8 @@ features = df.columns
 
 app.layout = html.Div([
     html.Div([
-        html.H1('Dash Application'),
+        html.H1('Dash Application', style={'textAlign':'center',
+                                'color':'#7FDBFF'}),
         dash_table.DataTable(
             data=df.to_dict('records'),
             sort_action='native',
@@ -32,17 +36,20 @@ app.layout = html.Div([
             style_header={
                 'backgroundColor': 'rgb(230, 230, 230)',
                 'fontWeight': 'bold'
-            }),
+            },
+            style_cell={
+                'minWidth': 95, 'maxWidth': 95, 'width': 95
+    }),
     ]),
     html.P(),
     html.H2('Filters'),
     html.Div([
         html.H3('Select column(s)'),
-        dcc.Dropdown(id='xaxis',
+        dcc.Dropdown(id='dropdown',
                      options=[{'label':i, 'value':i} for i in features],
-                     value='displacement',
+                     value='Data Since',
                      multi=True)],
-        style={'width':'18%', 'display':'inline-block'}
+        style={'width':'25%', 'display':'inline-block'}
     ),
     # checklist filters here
     html.Div([
@@ -50,9 +57,43 @@ app.layout = html.Div([
         dcc.Checklist(id='checklist',
                      options=[{'label':i, 'value':i} for i in features],
                      value=['Coverage'])],
-        style={'width':'68%', 'display':'inline-block'}
+        style={'width':'98%', 'display':'inline-block'}
     ),
-])
+    # two column filters for graphs
+    html.H3('Select columns for graph'),
+    html.Div([
+        dcc.Dropdown(id='xaxis',
+                     options=[{'label':i, 'value':i} for i in features],
+                     value='Data Since')],
+        style={'width':'18%', 'display':'inline-block'}),
+    html.Br(),
+    html.Div([
+        dcc.Dropdown(id='yaxis',
+                     options=[{'label':i, 'value':i} for i in features],
+                     value='Coverage')],
+        style={'width':'18%', 'display':'inline-block'}),
+    dcc.Graph(id='feature-graphic'),
+    ], style={'padding':10})
+
+
+@app.callback(Output('feature-graphic', 'figure'),
+              [Input('xaxis', 'value'),
+               Input('yaxis', 'value')])
+def update_graph(xaxis_name, yaxis_name):
+    return {'data':[go.Scatter(x=df[xaxis_name],
+                               y=df[yaxis_name],
+                               text=df['Provider'],
+                               mode='markers',
+                               marker={'size':15,
+                                       'opacity':0.5,
+                                       'line':{'width':0.5, 'color':'white'}})
+                    ],
+            'layout':go.Layout(title='My Dashboard for MPG',
+                                xaxis={'title':xaxis_name},
+                                yaxis={'title':yaxis_name},
+                                hovermode='closest'),}
+
+
 
 
 if __name__ == '__main__':
