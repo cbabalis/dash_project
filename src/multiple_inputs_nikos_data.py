@@ -91,6 +91,7 @@ app.layout = html.Div([
                         max=max(date_list),
                         marks={i:str(i) for i in range(min(date_list), max(date_list))},
                         value=[min(date_list), max(date_list)]),
+        dcc.Graph(id='bar-graph')
         ], style={'padding':10},
         )
 
@@ -113,6 +114,24 @@ def update_graph(xaxis_name, yaxis_name):
                                 hovermode='closest'),}
 
 
+@app.callback(Output('bar-graph', 'figure'),
+              [Input('xaxis', 'value'),
+               Input('yaxis', 'value')])
+def update_bar_graph(xaxis_name, yaxis_name):
+    return {'data':[go.Bar(x=df[xaxis_name],
+                            y=df[yaxis_name],
+                            text=df['Data Since'],
+                            textposition='auto',
+                            marker=dict(
+                            color='rgb(158,202,225)',
+                            line=dict(
+                            color='rgb(8,48,107)',
+                            width=1.5),))
+                    ],
+            'layout':go.Layout(title='My Dashboard for Bars',
+                                xaxis={'title':xaxis_name},
+                                yaxis={'title':yaxis_name},
+                                hovermode='closest'),}
 
 
 if __name__ == '__main__':

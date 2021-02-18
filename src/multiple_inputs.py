@@ -13,8 +13,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 #df = pd.read_csv('https://plotly.github.io/datasets/country_indicators.csv')
-df = pd.read_csv('data/OD2019.csv')
-
+#df = pd.read_csv('data/OD2019.csv')
+df = pd.read_csv('data/nikos-data.csv')
 available_indicators = df.columns
 pdb.set_trace()
 
