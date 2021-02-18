@@ -5,7 +5,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.graph_objs as go
-
+import numpy as np
 import pandas as pd
 import pdb
 
@@ -23,6 +23,9 @@ df = pd.read_csv('data/nikos-data.csv')
 # Another table from filters.
 
 features = df.columns
+date_list = df['Data Since'].unique()
+#date_list = sorted(date_list)
+
 
 app.layout = html.Div([
     html.Div([
@@ -34,12 +37,22 @@ app.layout = html.Div([
             columns=[{'name': i, 'id': i} for i in df.columns if i != 'id'],
             style_table={'height':'500px', 'overflowY':'auto'},
             style_header={
-                'backgroundColor': 'rgb(230, 230, 230)',
-                'fontWeight': 'bold'
+                'backgroundColor': 'rgb(210, 210, 210)',
+                'fontWeight': 'bold',
             },
             style_cell={
-                'minWidth': 95, 'maxWidth': 95, 'width': 95
-    }),
+                'minWidth': 95, 'maxWidth': 95, 'width': 95,
+                'overflow':'hidden', 'textOverflow':'ellipsis'
+            },
+            tooltip_data=[
+                {
+                    column: {'value': str(value), 'type': 'markdown'}
+                    for column, value in row.items()
+                } for row in df.to_dict('records')
+            ],
+            tooltip_delay=0,
+            tooltip_duration=None,
+        ),
     ]),
     html.P(),
     html.H2('Filters'),
@@ -72,8 +85,14 @@ app.layout = html.Div([
                      options=[{'label':i, 'value':i} for i in features],
                      value='Coverage')],
         style={'width':'18%', 'display':'inline-block'}),
-    dcc.Graph(id='feature-graphic'),
-    ], style={'padding':10})
+        dcc.Graph(id='feature-graphic'),
+        dcc.RangeSlider(id='date-slider',
+                        min=min(date_list),
+                        max=max(date_list),
+                        marks={i:str(i) for i in range(min(date_list), max(date_list))},
+                        value=[min(date_list), max(date_list)]),
+        ], style={'padding':10},
+        )
 
 
 @app.callback(Output('feature-graphic', 'figure'),
