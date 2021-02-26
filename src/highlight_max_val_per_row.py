@@ -67,7 +67,8 @@ app = dash.Dash(__name__)
 df['id'] = df.index
 
 app.layout = html.Div([
-    html.H1('Table of Loads'),
+    html.H1('Table of Loads', style={'textAlign':'center',
+                                'color':'#7FDBFF'}),
     html.Br(),
     dash_table.DataTable(
         data=df.to_dict('records'),
