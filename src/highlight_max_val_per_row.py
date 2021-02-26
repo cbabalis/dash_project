@@ -86,15 +86,41 @@ def create_top_sums_by_region(df, how_many_sums=15):
     return stats_df
 
 
+def create_unique_prefix_list(a_df, pref='EL'):
+    nuts = a_df.columns.tolist()
+    prefixes = []
+    for word in nuts:
+        if word.startswith(pref):
+            prefixes.append(word[0:4])
+    prefixes = set(prefixes)
+    return list(prefixes)
+
+
+def get_region_stats(a_df, prefixes, name='nuts'):
+    cols_list = []
+    rows_list = []
+    for prefix in prefixes:
+        prefix_df = a_df[a_df[name].str.contains(prefix)]
+        cols, rows = prefix_df.sum(numeric_only=True, axis=0).tolist()
+        cols_list.append(cols)
+        rows_list.append(rows)
+    regions_df = pd.DataFrame({
+        'nuts':prefixes,
+        'cols_sum': cols_list,
+        'rows_sum': rows_list})
+    return regions_df
+
 #top_prods = get_top_production_by_region(df)
 stats_df = create_top_sums_by_region(df)
 prods_df = stats_df.nlargest(15, 'rows_sum')
 cons_df = stats_df.nlargest(15, 'cols_sum')
+filter_row = create_unique_prefix_list(df)
+reg_df = get_region_stats(stats_df, filter_row)
 
 
-def get_prod_pie(a_df):
+def get_pie(a_df, val):
     trace = go.Pie(labels=a_df['nuts'].tolist(),
-                    values=a_df['rows_sum'].tolist())
+                    values=a_df[val].tolist())
     data = [trace]
     fig = go.Figure(data = data)
     return fig
@@ -144,8 +170,12 @@ app.layout = html.Div([
     html.Br(),
     html.Div([
         dcc.Graph(id='bar-pie-prod',
-        figure= get_prod_pie(prods_df)),
-        ], style={'padding':10, 'display':'inline-block'},),
+        figure= get_pie(reg_df, 'rows_sum')),
+        ], style={'padding':10, 'width':'45%', 'display':'inline-block'},),
+     html.Div([
+        dcc.Graph(id='bar-pie-con',
+        figure= get_pie(reg_df, 'cols_sum')),
+        ], style={'padding':10, 'width':'45%', 'display':'inline-block'},),
     ])
 
 
