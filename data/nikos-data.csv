@@ -1,0 +1,184 @@
+Unit of Measurement,Commodity Type,Coverage,Coverage level,Partner Entity,Time Granularity,Data Since,Imports / Exports,Mode of Transport,Provider
+[Euros],SITC,Europe,Country Level,Countries Worldwide,Monthly,1988,Null,Null,Eurostat
+[tonnes],SITC,Europe,Country Level,Countries Worldwide,Monthly,1989,Null,Null,Eurostat
+[Euros],SITC,Europe,Country Level,Countries Worldwide,Quarterly,1988,Null,Null,Eurostat
+[tonnes],SITC,Europe,Country Level,Countries Worldwide,Quarterly,1989,Null,Null,Eurostat
+[Euros],SITC,Europe,Country Level,Countries Worldwide,Annually,1988,Null,Null,Eurostat
+[tonnes],SITC,Europe,Country Level,Countries Worldwide,Annually,1989,Null,Null,Eurostat
+[Euros],HS,Europe,Country Level,Countries Worldwide,Monthly,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],HS,Europe,Country Level,Countries Worldwide,Monthly,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[Euros],HS,Europe,Country Level,Countries Worldwide,Quarterly,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],HS,Europe,Country Level,Countries Worldwide,Quarterly,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[Euros],HS,Europe,Country Level,Countries Worldwide,Annually,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],HS,Europe,Country Level,Countries Worldwide,Annually,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[Euros],CN,Europe,Country Level,Countries Worldwide,Monthly,1988,Null,Null,Eurostat
+[tonnes],CN,Europe,Country Level,Countries Worldwide,Monthly,1989,Null,Null,Eurostat
+[Euros],CN,Europe,Country Level,Countries Worldwide,Quarterly,1988,Null,Null,Eurostat
+[tonnes],CN,Europe,Country Level,Countries Worldwide,Quarterly,1989,Null,Null,Eurostat
+[Euros],CN,Europe,Country Level,Countries Worldwide,Annually,1988,Null,Null,Eurostat
+[tonnes],CN,Europe,Country Level,Countries Worldwide,Annually,1989,Null,Null,Eurostat
+[Euros],BEC,Europe,Country Level,Countries Worldwide,Monthly,1988,Null,Null,Eurostat
+[tonnes],BEC,Europe,Country Level,Countries Worldwide,Monthly,1989,Null,Null,Eurostat
+[Euros],BEC,Europe,Country Level,Countries Worldwide,Quarterly,1988,Null,Null,Eurostat
+[tonnes],BEC,Europe,Country Level,Countries Worldwide,Quarterly,1989,Null,Null,Eurostat
+[Euros],BEC,Europe,Country Level,Countries Worldwide,Annually,1988,Null,Null,Eurostat
+[tonnes],BEC,Europe,Country Level,Countries Worldwide,Annually,1989,Null,Null,Eurostat
+[Euros],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Monthly,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Monthly,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[Euros],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Quarterly,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Quarterly,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[Euros],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Annually,1988,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[tonnes],NSTR (only for EXTRA-EU Trade),Europe,Country Level,Countries Worldwide,Annually,1989,Null,"Unknown
+ Sea
+ Rail
+ Road
+ Air
+ Post
+ Fixed Mechanism
+ Inland Waterway
+ Self Propulsion
+
+(only for EXTRA-EU Trade)",Eurostat
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+[tonnes],SITC,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),SITC,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+[tonnes],SITC,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),SITC,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[tonnes],SITC,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),SITC,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[tonnes],SITC,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),SITC,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[US Dollars],HS,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+[tonnes],HS,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),HS,World,Country Level,Countries Worldwide,Monthly,2008,Imports / Exports,Null,UNCOMTRADE
+[US Dollars],HS,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+[tonnes],HS,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),HS,World,Country Level,Countries Worldwide,Annually,1968,Imports / Exports,Null,UNCOMTRADE
+[US Dollars],HS,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[tonnes],HS,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),HS,World,Country Level,Countries Worldwide,Monthly,2008,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[US Dollars],HS,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[tonnes],HS,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+Quantity [number] (wherever applicable),HS,World,Country Level,Countries Worldwide,Annually,1968,Re-Imports / Re-Exports,Null,UNCOMTRADE
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Annually,1995,Imports / Exports,Null,UNCTAD
+[US Dollars],SITC,World,Country Level,Groups of Countries,Annually,1995,Imports / Exports,Null,UNCTAD
+Share of Total,HS,World,Country Level,Countries Worldwide,Annually,2007,Imports / Exports,Null,CEPII
+[US Dollars],SITC,World,Country Level,Countries Worldwide,Annually,1965,Imports / Exports,Null,OEC
+[US Dollars],HS,World,Country Level,Countries Worldwide,Annually,1995,Imports / Exports,Null,OEC
+[US Dollars],HS,World,Country Level,Countries Worldwide,Monthly,2002,Imports / Exports,Null,ITC
+[US Dollars],HS,World,Country Level,Countries Worldwide,Annually,2001,Imports / Exports,Null,ITC
+[US Dollars],HS,World,Country Level,Groups of Countries,Monthly,2002,Imports / Exports,Null,ITC
+[US Dollars],HS,World,Country Level,Groups of Countries,Annually,2001,Imports / Exports,Null,ITC
