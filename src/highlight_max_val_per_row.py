@@ -118,9 +118,10 @@ filter_row = create_unique_prefix_list(df)
 reg_df = get_region_stats(stats_df, filter_row)
 
 
-def get_pie(a_df, val):
+def get_pie(a_df, val, my_title=''):
     trace = go.Pie(labels=a_df['nuts'].tolist(),
-                    values=a_df[val].tolist())
+                    values=a_df[val].tolist(),
+                    title=my_title)
     data = [trace]
     fig = go.Figure(data = data)
     return fig
@@ -170,11 +171,11 @@ app.layout = html.Div([
     html.Br(),
     html.Div([
         dcc.Graph(id='bar-pie-prod',
-        figure= get_pie(reg_df, 'rows_sum')),
+        figure= get_pie(reg_df, 'rows_sum', my_title='Παραγωγή ανά περιφέρεια')),
         ], style={'padding':10, 'width':'45%', 'display':'inline-block'},),
      html.Div([
         dcc.Graph(id='bar-pie-con',
-        figure= get_pie(reg_df, 'cols_sum')),
+        figure= get_pie(reg_df, 'cols_sum', my_title='Κατανάλωση ανά περιφέρεια')),
         ], style={'padding':10, 'width':'45%', 'display':'inline-block'},),
     ])
 
