@@ -27,7 +27,6 @@ features = df.columns
 df['year'] = df['year'].fillna(0)
 df['year'] = df['year'].astype(int)
 date_list = df['year'].unique()
-pdb.set_trace()
 #date_list = sorted(date_list)
 
 
