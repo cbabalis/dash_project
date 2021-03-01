@@ -131,10 +131,25 @@ app = dash.Dash(__name__)
 
 df['id'] = df.index
 
+features = df.columns
+
 app.layout = html.Div([
-    html.H1('Table of Loads', style={'textAlign':'center',
+    html.H1('Εφαρμογή Δεδομένων και Διαγραμμάτων', style={'textAlign':'center',
                                 'color':'#7FDBFF'}),
+    html.H3('Επιλέξτε στήλες προς προβολή'),
+    html.Div([
+        dcc.Dropdown(id='xaxis',
+                     options=[{'label':i, 'value':i} for i in features],
+                     value='Data Since')],
+        style={'width':'18%', 'display':'inline-block'}),
     html.Br(),
+    html.Div([
+        dcc.Dropdown(id='yaxis',
+                     options=[{'label':i, 'value':i} for i in features],
+                     value='Coverage')],
+        style={'width':'18%', 'display':'inline-block'}),
+    html.Br(),
+    html.H2('Πίνακας Δεδομένων', style={'textAlign':'center'}),
     dash_table.DataTable(
         data=df.to_dict('records'),
         sort_action='native',
@@ -181,4 +196,5 @@ app.layout = html.Div([
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='147.102.154.65', port=8053)
+    #app.run_server(debug=True, host='147.102.154.65', port=8053)
+    app.run_server(debug=True)

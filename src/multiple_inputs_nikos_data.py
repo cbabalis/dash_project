@@ -15,7 +15,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] # [dbc.the
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-df = pd.read_csv('data/nikos-data.csv')
+#df = pd.read_csv('data/nikos-data.csv')
+df = pd.read_csv('data/Agro2018_no_nan.csv', delimiter='\t')
 
 ## Create application.
 # Table.
@@ -23,7 +24,8 @@ df = pd.read_csv('data/nikos-data.csv')
 # Another table from filters.
 
 features = df.columns
-date_list = df['Data Since'].unique()
+date_list = df['year'].unique()
+pdb.set_trace()
 #date_list = sorted(date_list)
 
 
@@ -65,13 +67,13 @@ app.layout = html.Div([
         style={'width':'25%', 'display':'inline-block'}
     ),
     # checklist filters here
-    html.Div([
-        html.H3('Select some column(s)'),
-        dcc.Checklist(id='checklist',
-                     options=[{'label':i, 'value':i} for i in features],
-                     value=['Coverage'])],
-        style={'width':'98%', 'display':'inline-block'}
-    ),
+    # html.Div([
+    #     html.H3('Select some column(s)'),
+    #     dcc.Checklist(id='checklist',
+    #                  options=[{'label':i, 'value':i} for i in features],
+    #                  value=['Coverage'])],
+    #     style={'width':'25%', 'display':'inline-block'}
+    # ),
     # two column filters for graphs
     html.H3('Select columns for graph'),
     html.Div([
