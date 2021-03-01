@@ -24,6 +24,8 @@ df = pd.read_csv('data/Agro2018_no_nan.csv', delimiter='\t')
 # Another table from filters.
 
 features = df.columns
+df['year'] = df['year'].fillna(0)
+df['year'] = df['year'].astype(int)
 date_list = df['year'].unique()
 pdb.set_trace()
 #date_list = sorted(date_list)
@@ -62,7 +64,7 @@ app.layout = html.Div([
         html.H3('Select column(s)'),
         dcc.Dropdown(id='dropdown',
                      options=[{'label':i, 'value':i} for i in features],
-                     value='Data Since',
+                     value='year',
                      multi=True)],
         style={'width':'25%', 'display':'inline-block'}
     ),
@@ -71,7 +73,7 @@ app.layout = html.Div([
     #     html.H3('Select some column(s)'),
     #     dcc.Checklist(id='checklist',
     #                  options=[{'label':i, 'value':i} for i in features],
-    #                  value=['Coverage'])],
+    #                  value=['Category'])],
     #     style={'width':'25%', 'display':'inline-block'}
     # ),
     # two column filters for graphs
@@ -79,13 +81,13 @@ app.layout = html.Div([
     html.Div([
         dcc.Dropdown(id='xaxis',
                      options=[{'label':i, 'value':i} for i in features],
-                     value='Data Since')],
+                     value='year')],
         style={'width':'18%', 'display':'inline-block'}),
     html.Br(),
     html.Div([
         dcc.Dropdown(id='yaxis',
                      options=[{'label':i, 'value':i} for i in features],
-                     value='Coverage')],
+                     value='Category')],
         style={'width':'18%', 'display':'inline-block'}),
         dcc.Graph(id='feature-graphic'),
         dcc.RangeSlider(id='date-slider',
@@ -104,7 +106,7 @@ app.layout = html.Div([
 def update_graph(xaxis_name, yaxis_name):
     return {'data':[go.Scatter(x=df[xaxis_name],
                                y=df[yaxis_name],
-                               text=df['Provider'],
+                               text=df['Product'],
                                mode='markers',
                                marker={'size':15,
                                        'opacity':0.5,
@@ -122,7 +124,7 @@ def update_graph(xaxis_name, yaxis_name):
 def update_bar_graph(xaxis_name, yaxis_name):
     return {'data':[go.Bar(x=df[xaxis_name],
                             y=df[yaxis_name],
-                            text=df['Data Since'],
+                            text=df['year'],
                             textposition='auto',
                             marker=dict(
                             color='rgb(158,202,225)',

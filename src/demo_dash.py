@@ -62,11 +62,22 @@ df = pd.read_csv('data/Agro2018_no_nan.csv', delimiter='\t')
 app = dash.Dash(__name__)
 #style={'visibility': 'hidden'}
 
+cols = df.columns
 dpdown = []
 for i in df['NUTS_3'].unique() :
    str(dpdown.append({'label':i,'value':(i)}))
 
 app.layout = html.Div([
+    html.P([ #babis
+             html.Label("Choose a column"),
+             html.Div(dcc.Dropdown(id='dropdown-col',
+                                   options=[{'label':i, 'value':i} for i in cols],
+                                   multi=True),
+                                    style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'})]),
+    # end babis
              html.P([
              html.Label("Choose a feature"),
              html.Div(dcc.Dropdown(id='dropdown', options=dpdown),
@@ -99,7 +110,7 @@ def display_table(dpdown):
         dt.DataTable(
             id='main-table',
             columns=[{'name': i, 'id': i} for i in df_temp.columns],
-             data=df_temp[0:5].to_dict('rows'),
+             data=df_temp[0:15].to_dict('rows'),
              style_table={
                 'maxHeight': '20%',
                 #'overflowY': 'scroll',
