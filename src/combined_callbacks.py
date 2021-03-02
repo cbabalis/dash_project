@@ -7,6 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 
+
 df = pd.read_csv('data/Agro2018_no_nan.csv', delimiter='\t')
 
 app = dash.Dash(__name__)
