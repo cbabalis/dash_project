@@ -64,10 +64,18 @@ app = dash.Dash(__name__)
 
 cols = df.columns
 dpdown = []
-for i in df['NUTS_3'].unique() :
+for i in df['Region'].unique() :
    str(dpdown.append({'label':i,'value':(i)}))
 
+
+dpdown2 = []
+for i in df['NUTS_2'].unique() :
+   str(dpdown.append({'label':i,'value':(i)}))
+
+
 app.layout = html.Div([
+    html.H1('Εφαρμογή Δεδομένων και Διαγραμμάτων', style={'textAlign':'center',
+                                'color':'#7FDBFF'}),
     html.P([ #babis
              html.Label("Choose a column"),
              html.Div(dcc.Dropdown(id='dropdown-col',
@@ -79,8 +87,13 @@ app.layout = html.Div([
                                     'display': 'inline-block'})]),
     # end babis
              html.P([
-             html.Label("Choose a feature"),
+             html.Label("Choose a value"),
              html.Div(dcc.Dropdown(id='dropdown', options=dpdown),
+                                style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+             html.Div(dcc.Dropdown(id='dropdown-n2', options=dpdown2),
                                 style = {'width': '250px',
                                     'fontSize' : '15px',
                                     'padding-left' : '100px',
@@ -105,7 +118,7 @@ app.layout = html.Div([
     [dash.dependencies.Input('dropdown', 'value')])
 
 def display_table(dpdown):
-    df_temp = df[df['NUTS_3']==dpdown]
+    df_temp = df[df['Region']==dpdown]
     return html.Div([
         dt.DataTable(
             id='main-table',
@@ -129,4 +142,4 @@ def display_table(dpdown):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8053)
