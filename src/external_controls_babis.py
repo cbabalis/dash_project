@@ -87,6 +87,13 @@ app.layout = html.Div([
                 options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
                 value='Περιφέρεια (NUTS 2)'
             ),
+        html.Label("Επιλέξτε τιμές:"),
+        dcc.Dropdown(
+                id='yaxis-column-multi-val',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value=['Περιφέρεια Δυτικής Ελλάδας','Περιφέρεια Δυτικής Μακεδονίας'],
+                multi=True,
+            ),
             ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
     dcc.Graph(id='indicator-graphic-multi'),
 ])
@@ -186,7 +193,7 @@ def update_graphs(selected_country, selected_city):
         # check if column exists - user may have deleted it
         # If `column.deletable=False`, then you don't
         # need to do this check.
-        for column in ["Ποσότητα Παραγωγής (σε τόνους)", "Κατηγορία Αγροτικών Προϊόντων", "Έκταση (στρέμματα)"] if column in dff
+        for column in ["Ποσότητα Παραγωγής (σε τόνους)", "Έκταση (στρέμματα)"] if column in dff
     ]
 
 
@@ -226,15 +233,31 @@ def set_cities_value(available_options):
 
 
 @app.callback(
+    Output('yaxis-column-multi-val', 'options'),
+    Input('yaxis-column-multi', 'value'))
+def set_cities_options(selected_country):
+    return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
+
+
+@app.callback(
+    Output('yaxis-column-multi-val', 'value'),
+    Input('yaxis-column-multi-val', 'options'))
+def set_cities_value(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
     Output('indicator-graphic-multi', 'figure'),
     [Input('xaxis-column-multi', 'value'),
      Input('xaxis-column-multi-val', 'value'),
-    Input('yaxis-column-multi', 'value'),])
-def set_display_table(x_col, x_col_vals, y_col):
+     Input('yaxis-column-multi', 'value'),
+     Input('yaxis-column-multi-val', 'value'),])
+def set_display_table(x_col, x_col_vals, y_col, y_col_vals):
     #df_temp = sample_df[sample_df['Αγροτικά Προϊόντα'] == selected_country]
     #df_temp = df_temp[df_temp['Αγροτικά Προϊόντα'] == selected_city]
     #pdb.set_trace()
     dff= sample_df[sample_df[x_col].isin(x_col_vals)]
+    dff= dff[dff[y_col].isin(y_col_vals)]
     
     fig = px.scatter(x=dff[x_col],
                      y=dff[y_col],
