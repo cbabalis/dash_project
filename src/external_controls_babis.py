@@ -46,18 +46,49 @@ app.layout = html.Div([
     html.Div(id='datatable-interactivity-container'),
     html.Hr(),
     html.H3('Διαδραστικό Διάγραμμα'),
-    html.Div([dcc.Dropdown(
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
+        dcc.Dropdown(
                 id='xaxis-column',
                 options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
                 value='Αγροτικά Προϊόντα'
             ),
+        ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Υ:"),
             dcc.Dropdown(
                 id='yaxis-column',
                 options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
                 value='Περιφέρεια (NUTS 2)'
             ),
-            ],style={'width': '48%', 'display': 'inline-block'}),
-            dcc.Graph(id='indicator-graphic'),
+            ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    dcc.Graph(id='indicator-graphic'),
+    
+    html.H3('Διαδραστικό Διάγραμμα με επιλογή πολλαπλών τιμών'),
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Αγροτικά Προϊόντα'
+            ),
+        html.Label("Επιλέξτε τιμές:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi-val',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value=['Αραβόσιτος','Σόργο'],
+                multi=True,
+            ),
+        ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Υ:"),
+            dcc.Dropdown(
+                id='yaxis-column-multi',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Περιφέρεια (NUTS 2)'
+            ),
+            ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    dcc.Graph(id='indicator-graphic-multi'),
 ])
 
 
@@ -179,6 +210,44 @@ def update_graph(xaxis_column_name, yaxis_column_name):
     return fig
 
 
+
+@app.callback(
+    Output('xaxis-column-multi-val', 'options'),
+    Input('xaxis-column-multi', 'value'))
+def set_cities_options(selected_country):
+    return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
+
+
+@app.callback(
+    Output('xaxis-column-multi-val', 'value'),
+    Input('xaxis-column-multi-val', 'options'))
+def set_cities_value(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('indicator-graphic-multi', 'figure'),
+    [Input('xaxis-column-multi', 'value'),
+     Input('xaxis-column-multi-val', 'value'),
+    Input('yaxis-column-multi', 'value'),])
+def set_display_table(x_col, x_col_vals, y_col):
+    #df_temp = sample_df[sample_df['Αγροτικά Προϊόντα'] == selected_country]
+    #df_temp = df_temp[df_temp['Αγροτικά Προϊόντα'] == selected_city]
+    #pdb.set_trace()
+    dff= sample_df[sample_df[x_col].isin(x_col_vals)]
+    
+    fig = px.scatter(x=dff[x_col],
+                     y=dff[y_col],
+                     )
+    fig = px.scatter(dff, x=x_col, y=y_col, size='Ποσότητα Παραγωγής (σε τόνους)', color='Κατηγοριοποίηση Αγροτικών Προϊόντων ανάλογα με την χρήση')
+
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+
+    fig.update_xaxes(title=x_col)
+
+    fig.update_yaxes(title=y_col)
+
+    return fig
 
 
 if __name__ == '__main__':
