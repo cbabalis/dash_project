@@ -9,6 +9,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import pandas as pd
+import plotly.express as px
 
 
 df = pd.read_csv('data/agro2018/Agro2018_no_nanBABIS.csv', delimiter='\t')
@@ -85,6 +86,27 @@ app.layout = html.Div(
 
     html.H2("Διαγράμματα"),
     html.Div(id='datatable-interactivity-container'),
+    html.Hr(),
+        html.H3('Διαδραστικά Διαγράμματα'),
+        html.Div([
+            dcc.Dropdown(
+                id='crossfilter-yaxis-column',
+                options=[{'label': i, 'value': i} for i in df.columns],
+                value='Περιφέρεια (NUTS 2)'
+            ),
+            dcc.Dropdown(
+                id='crossfilter-xaxis-column',
+                options=[{'label': i, 'value': i} for i in df.columns],
+                value='Κατηγορία Αγροτικών Προϊόντων',
+            )
+        ], style={'width': '49%', 'float': 'right', 'display': 'inline-block'}),
+    html.Br(),
+    html.Hr(),
+    html.Div([
+        dcc.Graph(
+            id='crossfilter-indicator-scatter',
+        )
+    ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}),
     html.Hr(),
     html.H2("Περιοχή ανεβάσματος αρχείου από τον δίσκο"),
         dcc.Upload(
@@ -242,7 +264,7 @@ def display_table(product_dpdown, region_dpdown):
              page_current= 0,
              page_size= 10,
              style_table={
-                'maxHeight': '40%',
+                'maxHeight': '50%',
                 'overflowY': 'scroll',
                 'width': '100%',
                 'minWidth': '10%',
@@ -256,6 +278,21 @@ def display_table(product_dpdown, region_dpdown):
 
     ])
 
+
+@app.callback(
+    dash.dependencies.Output('crossfilter-indicator-scatter', 'figure'),
+    [dash.dependencies.Input('crossfilter-xaxis-column', 'value'),
+     dash.dependencies.Input('crossfilter-yaxis-column', 'value')])
+def update_graph(xaxis_column_name, yaxis_column_name):
+    dff = df#[df['Year'] == year_value]
+
+    fig = px.scatter(x=dff[dff['Indicator Name'] == xaxis_column_name]['Value'],
+            y=dff[dff['Indicator Name'] == yaxis_column_name]['Value'],
+            hover_name=dff[dff['Indicator Name'] == yaxis_column_name]['Country Name']
+            )
+    fig.update_traces(customdata=dff[dff['Indicator Name'] == yaxis_column_name]['Country Name'])
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+    return fig
 
 
 if __name__ == "__main__":
