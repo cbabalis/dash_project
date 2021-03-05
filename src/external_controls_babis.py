@@ -7,7 +7,10 @@ from dash.dependencies import Input, Output
 from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import plotly.express as px
+
 import pdb
+
 
 sample_df = pd.read_csv('data/agro2018/Agro2018_no_nanBABIS.csv', delimiter='\t')
 sample_df = sample_df.fillna(0)
@@ -41,6 +44,20 @@ app.layout = html.Div([
     
     html.H2("Διαγράμματα"),
     html.Div(id='datatable-interactivity-container'),
+    html.Hr(),
+    html.H3('Διαδραστικό Διάγραμμα'),
+    html.Div([dcc.Dropdown(
+                id='xaxis-column',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Αγροτικά Προϊόντα'
+            ),
+            dcc.Dropdown(
+                id='yaxis-column',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Περιφέρεια (NUTS 2)'
+            ),
+            ],style={'width': '48%', 'display': 'inline-block'}),
+            dcc.Graph(id='indicator-graphic'),
 ])
 
 
@@ -140,6 +157,27 @@ def update_graphs(selected_country, selected_city):
         # need to do this check.
         for column in ["Ποσότητα Παραγωγής (σε τόνους)", "Κατηγορία Αγροτικών Προϊόντων", "Έκταση (στρέμματα)"] if column in dff
     ]
+
+
+@app.callback(
+    Output('indicator-graphic', 'figure'),
+    [Input('xaxis-column', 'value'),
+    Input('yaxis-column', 'value'),])
+def update_graph(xaxis_column_name, yaxis_column_name):
+    dff = sample_df
+
+    fig = px.bar(x=dff[xaxis_column_name],
+                     y=dff[yaxis_column_name],
+                     )
+
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+
+    fig.update_xaxes(title=xaxis_column_name)
+
+    fig.update_yaxes(title=yaxis_column_name)
+
+    return fig
+
 
 
 
