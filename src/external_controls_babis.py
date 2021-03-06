@@ -96,6 +96,37 @@ app.layout = html.Div([
             ),
             ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
     dcc.Graph(id='indicator-graphic-multi'),
+    
+    # sum graphs here
+    html.H3('Διαδραστικό Διάγραμμα με αθροίσματα'),
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi-sum',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Αγροτικά Προϊόντα'
+            ),
+        html.Label("Επιλέξτε τιμές:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi-val-sum',
+                multi=True,
+            ),
+        ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    html.Div(dcc.Dropdown(id='yaxis-column-multi-sum',
+                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
+                          value='Αγροτικά Προϊόντα'),
+                                style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+    html.Div(dcc.Dropdown(id='column-sum',
+                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
+                          value='Έκταση (στρέμματα)'),
+             style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+    dcc.Graph(id='indicator-graphic-multi-sum'),
 ])
 
 
@@ -271,6 +302,62 @@ def set_display_table(x_col, x_col_vals, y_col, y_col_vals):
     fig.update_yaxes(title=y_col)
 
     return fig
+
+
+@app.callback(
+    Output('xaxis-column-multi-val-sum', 'options'),
+    Input('xaxis-column-multi-sum', 'value'))
+def set_sum_options(selected_country):
+    return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
+
+
+@app.callback(
+    Output('xaxis-column-multi-val-sum', 'value'),
+    Input('xaxis-column-multi-val-sum', 'options'))
+def set_sum_values(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('yaxis-column-multi-sum', 'value'),
+    Input('yaxis-column-multi-sum', 'options'))
+def set_sum_values(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('column-sum', 'value'),
+    Input('column-sum', 'options'))
+def set_sum_values(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('indicator-graphic-multi-sum', 'figure'),
+    [Input('xaxis-column-multi-sum', 'value'),
+     Input('xaxis-column-multi-val-sum', 'value'),
+     Input('yaxis-column-multi-sum', 'value'),
+     Input('column-sum', 'value'),])
+def set_display_table(x_col, x_col_vals, y_col, col_sum):
+    dff= sample_df[sample_df[x_col].isin(x_col_vals)]
+    #dff= dff.groupby(y_col)[col_sum].sum()
+    dff.groupby(x_col)[col_sum].agg(['sum','count'])
+    #pdb.set_trace()
+    
+    fig = px.scatter(x=dff[x_col],
+                     y=dff[y_col],
+                     )
+    print(y_col, len(dff[y_col]))
+    fig = px.bar(dff, x=x_col, y=y_col, color='Κατηγοριοποίηση Αγροτικών Προϊόντων ανάλογα με την χρήση')
+
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+
+    fig.update_xaxes(title=x_col)
+
+    fig.update_yaxes(title=y_col)
+
+    return fig
+
 
 
 if __name__ == '__main__':
