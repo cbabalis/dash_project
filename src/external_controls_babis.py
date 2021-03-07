@@ -64,6 +64,37 @@ app.layout = html.Div([
             ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
     dcc.Graph(id='indicator-graphic'),
     
+    # sum graphs here
+    html.H3('Διαδραστικό Διάγραμμα με αθροίσματα'),
+    html.Div([
+        html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi-sum',
+                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
+                value='Αγροτικά Προϊόντα'
+            ),
+        html.Label("Επιλέξτε τιμές:"),
+        dcc.Dropdown(
+                id='xaxis-column-multi-val-sum',
+                multi=True,
+            ),
+        ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
+    html.Div(dcc.Dropdown(id='yaxis-column-multi-sum',
+                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
+                          value='Αγροτικά Προϊόντα'),
+                                style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+    html.Div(dcc.Dropdown(id='column-sum',
+                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
+                          value='Έκταση (στρέμματα)'),
+             style = {'width': '250px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+    dcc.Graph(id='indicator-graphic-multi-sum'),
+    
     html.H3('Διαδραστικό Διάγραμμα με επιλογή πολλαπλών τιμών'),
     html.Div([
         html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
@@ -96,37 +127,6 @@ app.layout = html.Div([
             ),
             ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
     dcc.Graph(id='indicator-graphic-multi'),
-    
-    # sum graphs here
-    html.H3('Διαδραστικό Διάγραμμα με αθροίσματα'),
-    html.Div([
-        html.Label("Επιλέξτε τιμή για τον άξονα Χ:"),
-        dcc.Dropdown(
-                id='xaxis-column-multi-sum',
-                options=[{'label': i, 'value': i} for i in sample_df.columns.tolist()],
-                value='Αγροτικά Προϊόντα'
-            ),
-        html.Label("Επιλέξτε τιμές:"),
-        dcc.Dropdown(
-                id='xaxis-column-multi-val-sum',
-                multi=True,
-            ),
-        ],style={'width': '35%','padding-left' : '40px', 'display': 'inline-block'}),
-    html.Div(dcc.Dropdown(id='yaxis-column-multi-sum',
-                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
-                          value='Αγροτικά Προϊόντα'),
-                                style = {'width': '250px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '100px',
-                                    'display': 'inline-block'}),
-    html.Div(dcc.Dropdown(id='column-sum',
-                          options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
-                          value='Έκταση (στρέμματα)'),
-             style = {'width': '250px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '100px',
-                                    'display': 'inline-block'}),
-    dcc.Graph(id='indicator-graphic-multi-sum'),
 ])
 
 
