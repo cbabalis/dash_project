@@ -31,7 +31,7 @@ app.layout = html.Div([
                                     'fontSize' : '15px',
                                     'padding-left' : '100px',
                                     'display': 'inline-block'}),
-    html.Div(dcc.Dropdown(id='cities-radio'),
+    html.Div(dcc.Dropdown(id='cities-radio', multi=True),
              style = {'width': '450px',
                                     'fontSize' : '15px',
                                     'padding-left' : '100px',
@@ -163,8 +163,10 @@ def set_display_table(selected_country, selected_city):
     #df_temp = df_temp[df_temp['Αγροτικά Προϊόντα'] == selected_city]
     if selected_country == '':
         df_temp = sample_df
-    else:
+    elif (len(selected_city) == 1):
         df_temp = sample_df[sample_df[selected_country] == selected_city]
+    else:
+        df_temp= sample_df[sample_df[selected_country].isin(selected_city)]
     return html.Div([
         dash_table.DataTable(
             id='main-table',
@@ -201,7 +203,13 @@ def set_display_table(selected_country, selected_city):
     Input('countries-radio', 'value'),
     Input('cities-radio', 'value'))
 def update_graphs(selected_country, selected_city):
-    dff = sample_df[sample_df[selected_country] == selected_city]
+    #dff = sample_df[sample_df[selected_country] == selected_city]
+    if selected_country == '':
+        dff = sample_df
+    elif (len(selected_city) == 1):
+        dff = sample_df[sample_df[selected_country] == selected_city]
+    else:
+        dff = sample_df[sample_df[selected_country].isin(selected_city)]
     return [
         dcc.Graph(
             id=column,
