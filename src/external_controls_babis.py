@@ -26,7 +26,7 @@ app.layout = html.Div([
     html.H2("Επιλέξτε Φίλτρο Δεδομένων"),
     html.Div(dcc.Dropdown(id='countries-radio',
                           options=[{'label': k, 'value': k} for k in sample_df.columns.tolist()],
-                          value='Αγροτικά Προϊόντα'),
+                          value=''), #'Αγροτικά Προϊόντα'),
                                 style = {'width': '250px',
                                     'fontSize' : '15px',
                                     'padding-left' : '100px',
@@ -161,12 +161,15 @@ def set_cities_value(available_options):
 def set_display_table(selected_country, selected_city):
     #df_temp = sample_df[sample_df['Αγροτικά Προϊόντα'] == selected_country]
     #df_temp = df_temp[df_temp['Αγροτικά Προϊόντα'] == selected_city]
-    df_temp = sample_df[sample_df[selected_country] == selected_city]
+    if selected_country == '':
+        df_temp = sample_df
+    else:
+        df_temp = sample_df[sample_df[selected_country] == selected_city]
     return html.Div([
         dash_table.DataTable(
             id='main-table',
             columns=[{'name': i, 'id': i} for i in df_temp.columns],
-             data=df_temp[0:15].to_dict('rows'),
+             data=df_temp.to_dict('rows'),
              editable=True,
              filter_action='native',
              sort_action='native',
