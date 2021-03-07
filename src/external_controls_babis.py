@@ -340,21 +340,23 @@ def set_sum_values(available_options):
      Input('column-sum', 'value'),])
 def set_display_table(x_col, x_col_vals, y_col, col_sum):
     dff= sample_df[sample_df[x_col].isin(x_col_vals)]
-    #dff= dff.groupby(y_col)[col_sum].sum()
-    dff.groupby(x_col)[col_sum].agg(['sum','count'])
+    #dff= dff.groupby(x_col).sum()
+    dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(int).sum())
+    dff = dff.reset_index()
     #pdb.set_trace()
+    #dff.groupby(x_col)[col_sum].agg(['sum','count'])
     
-    fig = px.scatter(x=dff[x_col],
-                     y=dff[y_col],
+    fig = px.scatter(x=dff[y_col],
+                     y=dff[col_sum], #dff[x_col],
                      )
     print(y_col, len(dff[y_col]))
-    fig = px.bar(dff, x=x_col, y=y_col, color='Κατηγοριοποίηση Αγροτικών Προϊόντων ανάλογα με την χρήση')
+    fig = px.bar(dff, x=y_col, y=col_sum, color=x_col) #x_col)
 
     fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
 
-    fig.update_xaxes(title=x_col)
+    fig.update_xaxes(title=y_col)
 
-    fig.update_yaxes(title=y_col)
+    fig.update_yaxes(title=col_sum)
 
     return fig
 
