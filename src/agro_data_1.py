@@ -18,6 +18,7 @@ sample_df = sample_df.fillna(0)
 geospatial_categories = ['Κωδικοποίηση NUTS 2', 'Περιφέρεια (NUTS 2)', 'Κωδικοποίηση NUTS 3', 'Περιφερειακή Ενότητα (NUTS 3)']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορία Αγροτικών Προϊόντων', 'Κατηγοριοποίηση Αγροτικών Προϊόντων ανάλογα με την χρήση']
 vals_categories = ['Έκταση (στρέμματα)', 'Ποσότητα Παραγωγής (σε τόνους)', 'Αριθμός Δέντρων	Έτος Αναφοράς']
+chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
 
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
@@ -28,6 +29,23 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
     else:
         df_temp= sample_df[sample_df[selected_country].isin(selected_city)]
     return df_temp
+
+
+def get_bar_figure(dff, x_col, y_col, col_sum):
+    fig = px.bar(dff, x=x_col, y=y_col, color=col_sum) #x_col)
+
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+
+    fig.update_xaxes(title=y_col)
+
+    fig.update_yaxes(title=col_sum)
+    
+    return fig
+
+
+def get_pie_figure(dff, x_col, col_sum, y_col):
+    fig = px.pie(dff, values=col_sum, names=y_col)
+    return fig
 
 
 
@@ -66,9 +84,17 @@ app.layout = html.Div([
     
     # values filters
     html.Div([html.Label("Επιλέξτε Τιμή Προβολής"),
-        dcc.Dropdown(id='val-radio',
+        dcc.Dropdown(id='column-sum',
                           options=[{'label': k, 'value': k} for k in vals_categories],
                           value=''),
+    ],style = {'width': '350px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '100px',
+                                    'display': 'inline-block'}),
+    html.Div([html.Label("Επιλογή Γραφήματος"),
+        dcc.Dropdown(id='chart-choice',
+                          options=[{'label': k, 'value': k} for k in chart_types],
+                          value='Γράφημα Στήλης'),
     ],style = {'width': '350px',
                                     'fontSize' : '15px',
                                     'padding-left' : '100px',
@@ -76,9 +102,10 @@ app.layout = html.Div([
     # table here
     html.Hr(),
     html.Div(id='display-selected-table',  className='tableDiv'),
-
     
     # graphs here
+    html.Hr(),
+    dcc.Graph(id='indicator-graphic-multi-sum'),   
 ])
 
 
@@ -148,6 +175,44 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
               style_data={'whiteSpace': 'auto','height': 'auto','width': 'auto'}
         )
     ])
+
+
+@app.callback(
+    Output('column-sum', 'value'),
+    Input('column-sum', 'options'))
+def set_sum_values(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('chart_choice', 'value'),
+    Input('hart_choice', 'options'))
+def get_chart_choice(available_options):
+    return available_options[0]['value']
+
+
+@app.callback(
+    Output('indicator-graphic-multi-sum', 'figure'),
+    [Input('countries-radio', 'value'),
+    Input('cities-radio', 'value'),
+    Input('products-radio', 'value'),
+    Input('products-radio-val', 'value'),
+    Input('column-sum', 'value'),
+    Input('chart-choice', 'value')])
+def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type):
+    dff = sample_df[sample_df[x_col].isin(x_col_vals)]
+    dff = dff[dff[y_col].isin(y_col_vals)]
+    dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(int).sum())
+    dff = dff.reset_index()
+    
+    if chart_type == 'Γράφημα Στήλης':
+        fig = get_bar_figure(dff, x_col, col_sum, y_col)
+    elif chart_type == 'Γράφημα Πίτας':
+        fig = get_pie_figure(dff, x_col, col_sum, y_col)
+
+    return fig
+
+
 
 
 
