@@ -163,7 +163,7 @@ def set_display_table(selected_country, selected_city):
     #df_temp = df_temp[df_temp['Αγροτικά Προϊόντα'] == selected_city]
     if selected_country == '':
         df_temp = sample_df
-    elif (len(selected_city) == 1):
+    elif (isinstance(selected_city, str)):
         df_temp = sample_df[sample_df[selected_country] == selected_city]
     else:
         df_temp= sample_df[sample_df[selected_country].isin(selected_city)]
