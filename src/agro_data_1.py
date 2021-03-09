@@ -169,7 +169,7 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
     return html.Div([
         dash_table.DataTable(
             id='main-table',
-            columns=[{'name': i, 'id': i} for i in df_temp.columns],
+            columns=[{'name': i, 'id': i, 'deletable':True} for i in df_temp.columns],
              data=df_temp.to_dict('rows'),
              editable=True,
              filter_action='native',
