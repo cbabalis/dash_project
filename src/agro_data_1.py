@@ -16,7 +16,7 @@ sample_df = pd.read_csv('data/03b_Table_Agro18_for_Babis.csv', delimiter='\t')
 sample_df = sample_df.fillna(0)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 
-geospatial_names = ['Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα του Νομού (NUTS3)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού']
+geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
 geospatial_categories = ['κωδ. NUTS2', 'Περιφέρειες (NUTS2)', 'κωδ. NUTS3', 'Περ. Ενότητες (NUTS3)']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 vals_categories = ['Εκτάσεις (σε στρέμματα)', 'Παραγωγή (σε τόνους)', 'Πλήθος Δέντρων	Έτος Αναφοράς']
@@ -65,6 +65,8 @@ app.layout = html.Div([
     html.H3("Επιλογή Μεταβλητών"),
     # geospatial filters
     html.Div([
+        html.Label("Επιλέξτε έτος προβολής"),
+        dcc.Dropdown(id='year-radio'),
         html.Label("Επιλέξτε Εδαφικές Μονάδες"),
         dcc.Dropdown(id='countries-radio',
                           options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
@@ -77,6 +79,8 @@ app.layout = html.Div([
                                     'display': 'inline-block'}),
     # product filters
     html.Div([
+        html.Label("Επιλέξτε τύπο διάθεσης Αγροτικών Προϊόντων"),
+        dcc.Dropdown(id='availability-radio'),
         html.Label("Επιλέξτε Αγροτικά Προϊόντα"),
         dcc.Dropdown(id='products-radio',
                           options=[{'label': k, 'value': k} for k in product_categories],
@@ -90,9 +94,7 @@ app.layout = html.Div([
     
     # values filters
     html.Div([
-        html.Label("Επιλέξτε τύπο διάθεσης Αγροτικών Προϊόντων"),
-        dcc.Dropdown(id='availability-radio'),
-        html.Label("Επιλέξτε Τιμή Προβολής"),
+        html.Label("Επιλέξτε Τιμή Προβολής (για διάγραμμα)"),
         dcc.Dropdown(id='column-sum',
                           options=[{'label': k, 'value': k} for k in vals_categories],
                           value=''),
@@ -152,6 +154,13 @@ def set_products_options(selected_country):
     return [{'label': i, 'value': i} for i in sample_df[PROD_AVAILABILITY].unique()]
 
 
+@app.callback(
+    Output('year-radio', 'options'),
+    Input('year-radio', 'value'))
+def set_products_options(selected_country):
+    return [{'label': i, 'value': i} for i in sample_df['Έτος αναφοράς'].unique()]
+
+
 
 @app.callback(
     Output('display-selected-table', 'children'),
@@ -159,12 +168,15 @@ def set_products_options(selected_country):
     Input('cities-radio', 'value'),
     Input('products-radio', 'value'),
     Input('products-radio-val', 'value'),
-    Input('availability-radio', 'value')
+    Input('availability-radio', 'value'),
+    Input('year-radio', 'value')
     ])
-def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, availability_prod_val):
+def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, availability_prod_val, year_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (availability_prod_val):
         dff = dff[dff[PROD_AVAILABILITY] == availability_prod_val]
+    if (year_val):
+        dff = dff[dff['Έτος αναφοράς'] == year_val]
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     return html.Div([
         dash_table.DataTable(
