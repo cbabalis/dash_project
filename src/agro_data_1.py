@@ -15,6 +15,7 @@ import pdb
 sample_df = pd.read_csv('data/03b_Table_Agro18_for_Babis.csv', delimiter='\t')
 sample_df = sample_df.fillna(0)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
+REPORT_YEAR = 'Έτος αναφοράς'
 
 geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
 geospatial_categories = ['κωδ. NUTS2', 'Περιφέρειες (NUTS2)', 'κωδ. NUTS3', 'Περ. Ενότητες (NUTS3)']
@@ -36,7 +37,13 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
 def get_bar_figure(dff, x_col, y_col, col_sum):
     fig = px.bar(dff, x=x_col, y=y_col, color=col_sum) #x_col)
 
-    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest',
+        #title= u'Διάγραμμα μεταβλητών {} και {}'.format(x_col,y_col),
+        font=dict(
+        family="Courier New, monospace",
+        size=15,
+        color="RebeccaPurple"
+    ))
     
     fig.update_traces( textposition='auto')
 
@@ -50,6 +57,12 @@ def get_bar_figure(dff, x_col, y_col, col_sum):
 def get_pie_figure(dff, x_col, col_sum, y_col):
     fig = px.pie(dff, values=col_sum, names=y_col)
     fig.update_traces(textposition='inside', textinfo='percent', hoverinfo='label+value', textfont_size=20)
+    fig.update_layout(uniformtext_minsize=20, uniformtext_mode='hide',
+        font=dict(
+        family="Courier New, monospace",
+        size=15,
+        color="RebeccaPurple"
+    ))
     return fig
 
 
@@ -158,7 +171,7 @@ def set_products_options(selected_country):
     Output('year-radio', 'options'),
     Input('year-radio', 'value'))
 def set_products_options(selected_country):
-    return [{'label': i, 'value': i} for i in sample_df['Έτος αναφοράς'].unique()]
+    return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
 
 
 
@@ -176,12 +189,12 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
     if (availability_prod_val):
         dff = dff[dff[PROD_AVAILABILITY] == availability_prod_val]
     if (year_val):
-        dff = dff[dff['Έτος αναφοράς'] == year_val]
+        dff = dff[dff[REPORT_YEAR] == year_val]
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     return html.Div([
         dash_table.DataTable(
             id='main-table',
-            columns=[{'name': i, 'id': i, 'deletable':True} for i in df_temp.columns],
+            columns=[{'name': i, 'id': i, 'hideable':True} for i in df_temp.columns],
              data=df_temp.to_dict('rows'),
              editable=True,
              filter_action='native',
@@ -238,10 +251,16 @@ def get_chart_choice(available_options):
     Input('products-radio', 'value'),
     Input('products-radio-val', 'value'),
     Input('column-sum', 'value'),
-    Input('chart-choice', 'value')])
-def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type):
+    Input('chart-choice', 'value'),
+    Input('availability-radio', 'value'),
+    Input('year-radio', 'value')])
+def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, availability_prod_val, year_val):
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
+    if (availability_prod_val):
+        dff = dff[dff[PROD_AVAILABILITY] == availability_prod_val]
+    if (year_val):
+        dff = dff[dff[REPORT_YEAR] == year_val]
     dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(int).sum())
     dff = dff.reset_index()
     
