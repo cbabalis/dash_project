@@ -12,8 +12,22 @@ import plotly.express as px
 import pdb
 
 
-sample_df = pd.read_csv('data/03b_Table_Agro18_for_Babis.csv', delimiter='\t')
+def convert_weeks_to_units(df):
+    # convert to date
+    df['week'] = df['Έτος αναφοράς'].astype(str) + df['Εβδομάδα'].astype(str)
+    df['week'] = df['week'].str.replace(r'w', '')
+    df['week'] = df['week'].astype(int)
+    df['LastDayWeek'] = pd.to_datetime((df['week']-1).astype(str) + "6", format="%Y%U%w")
+    # convert to months, quarters in new columns
+    df['Μήνας'] = pd.DatetimeIndex(df['LastDayWeek']).month
+    df['Τετράμηνο'] = pd.DatetimeIndex(df['LastDayWeek']).quarter
+    # return dataframe
+    return df
+
+
+sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
 sample_df = sample_df.fillna(0)
+sample_df = convert_weeks_to_units(sample_df)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 
@@ -205,6 +219,7 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
              row_deletable=True,
              selected_columns=[],
              selected_rows=[],
+             hidden_columns=['LastDayWeek', 'week'],
              page_action="native",
              page_current= 0,
              page_size= 10,
