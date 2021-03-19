@@ -9,6 +9,7 @@ from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.express as px
 
+
 import pdb
 
 
@@ -30,6 +31,8 @@ sample_df = sample_df.fillna(0)
 sample_df = convert_weeks_to_units(sample_df)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
+image = 'url(https://commons.wikimedia.org/wiki/File:Location_map_of_WesternGreece_(Greece).svg)'
+
 
 geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
 geospatial_categories = ['κωδ. NUTS2', 'Περιφέρειες (NUTS2)', 'κωδ. NUTS3', 'Περ. Ενότητες (NUTS3)']
@@ -144,7 +147,10 @@ app.layout = html.Div([
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),   
-])
+],
+                      style = {'background-image':image,
+                                    'background-size':'cover',
+                                    'background-position':'right'})
 
 
 @app.callback(
