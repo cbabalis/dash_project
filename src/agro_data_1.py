@@ -8,9 +8,29 @@ from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.express as px
+# following two lines for reading filenames from disk
+from os import listdir
+from os.path import isfile, join
 
 
 import pdb
+
+my_path = 'matrices_to_show/'
+onlyfiles = [f for f in listdir(my_path) if isfile(join(my_path, f))]
+
+matrix_text = '''
+### Πίνακας Προϊόντων ανά Περιφέρεια της Ελλάδας.
+*Σύντομη περιγραφή*: Επιλογή με βάση τον κωδικό Νuts 2.
+'''
+
+help_text = '''
+ΕΠΕΞΗΓΗΣΕΙΣ ΤΗΣ ΕΦΑΡΜΟΓΗΣ
+
+Οδηγίες χρήσης:
+- Πρώτα επιλέγουμε από το φίλτρο επιλογής πίνακα.
+- Έπειτα επιλέγουμε τιμές στα υπόλοιπα φίλτρα.
+- Περιμένουμε λίγο.
+'''
 
 
 def convert_weeks_to_units(df):
@@ -26,9 +46,22 @@ def convert_weeks_to_units(df):
     return df
 
 
-sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
-sample_df = sample_df.fillna(0)
-sample_df = convert_weeks_to_units(sample_df)
+def refine_df(df):
+    df = df.fillna(0)
+    df = convert_weeks_to_units(df)
+    return df
+
+
+def load_matrix(selected_matrix):
+    matrix_filepath = my_path + selected_matrix
+    sample_df = pd.read_csv(matrix_filepath, delimiter='\t')
+    sample_df = refine_df(sample_df)
+    return sample_df
+
+
+# sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
+# sample_df = sample_df.fillna(0)
+# sample_df = convert_weeks_to_units(sample_df)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 image = 'url(https://commons.wikimedia.org/wiki/File:Location_map_of_WesternGreece_(Greece).svg)'
@@ -37,7 +70,8 @@ image = 'url(https://commons.wikimedia.org/wiki/File:Location_map_of_WesternGree
 geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
 geospatial_categories = ['κωδ. NUTS2', 'Περιφέρειες (NUTS2)', 'κωδ. NUTS3', 'Περ. Ενότητες (NUTS3)']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
-vals_categories = ['Εκτάσεις (σε στρέμματα)', 'Παραγωγή (σε τόνους)', 'Πλήθος Δέντρων	Έτος Αναφοράς']
+#vals_categories = ['Εκτάσεις (σε στρέμματα)', 'Παραγωγή (σε τόνους)', 'Πλήθος Δέντρων', 'Έτος Αναφοράς']
+vals_categories = ['Παραγωγή (σε τόνους)', 'Έτος Αναφοράς']
 chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
 
 
@@ -52,7 +86,7 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
 
 
 def get_bar_figure(dff, x_col, y_col, col_sum):
-    fig = px.bar(dff, x=x_col, y=y_col, color=col_sum) #x_col)
+    fig = px.bar(dff, x=x_col, y=y_col, color=col_sum)
 
     fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest',
         #title= u'Διάγραμμα μεταβλητών {} και {}'.format(x_col,y_col),
@@ -91,6 +125,19 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.H1("Δεδομένα και Διαγράμματα",  style={'textAlign':'center'}),
     html.Hr(),
+    # text here
+    html.Div([
+    dcc.Markdown(matrix_text),
+    dcc.ConfirmDialogProvider(children=html.Button(
+            'Οδηγίες Χρήσης',
+            style={'float': 'right','margin': 'auto'}
+        ),
+        id='danger-danger-provider',
+        message=help_text,
+    ),
+    html.Div(id='output-provider')
+    ],
+             className='row'),
     # filters here
     html.H3("Επιλογή Μεταβλητών"),
     # geospatial filters
@@ -109,7 +156,7 @@ app.layout = html.Div([
                                     'display': 'inline-block'}),
     # product filters
     html.Div([
-        html.Label("Επιλέξτε τύπο διάθεσης Αγροτικών Προϊόντων"),
+        html.Label("Επιλέξτε πίνακα προς προβολή"),
         dcc.Dropdown(id='availability-radio'),
         html.Label("Επιλέξτε Αγροτικά Προϊόντα"),
         dcc.Dropdown(id='products-radio',
@@ -155,8 +202,10 @@ app.layout = html.Div([
 
 @app.callback(
     Output('cities-radio', 'options'),
-    Input('countries-radio', 'value'))
-def set_cities_options(selected_country):
+    [Input('availability-radio', 'value'),
+    Input('countries-radio', 'value')])
+def set_cities_options(selected_matrix, selected_country):
+    sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
 
 
@@ -168,8 +217,10 @@ def set_cities_value(available_options):
 
 @app.callback(
     Output('products-radio-val', 'options'),
-    Input('products-radio', 'value'))
-def set_products_options(selected_country):
+    [Input('availability-radio', 'value'),
+    Input('products-radio', 'value')])
+def set_products_options(selected_matrix, selected_country):
+    sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
 
 
@@ -184,13 +235,16 @@ def set_products_value(available_options):
     Output('availability-radio', 'options'),
     Input('availability-radio', 'value'))
 def set_products_options(selected_country):
-    return [{'label': i, 'value': i} for i in sample_df[PROD_AVAILABILITY].unique()]
+    #return [{'label': i, 'value': i} for i in sample_df[PROD_AVAILABILITY].unique()]
+    return [{'label': i, 'value': i} for i in onlyfiles]
 
 
 @app.callback(
     Output('year-radio', 'options'),
-    Input('year-radio', 'value'))
-def set_products_options(selected_country):
+    [Input('availability-radio', 'value'),
+    Input('year-radio', 'value')])
+def set_products_options(selected_matrix, selected_country):
+    sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
 
 
@@ -204,10 +258,11 @@ def set_products_options(selected_country):
     Input('availability-radio', 'value'),
     Input('year-radio', 'value')
     ])
-def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, availability_prod_val, year_val):
+def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val):
+    matrix_filepath = my_path + selected_matrix
+    sample_df = pd.read_csv(matrix_filepath, delimiter='\t')
+    sample_df = refine_df(sample_df)
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
-    if (availability_prod_val):
-        dff = dff[dff[PROD_AVAILABILITY] == availability_prod_val]
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
@@ -275,11 +330,10 @@ def get_chart_choice(available_options):
     Input('chart-choice', 'value'),
     Input('availability-radio', 'value'),
     Input('year-radio', 'value')])
-def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, availability_prod_val, year_val):
+def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val):
+    sample_df = load_matrix(selected_matrix)
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
-    if (availability_prod_val):
-        dff = dff[dff[PROD_AVAILABILITY] == availability_prod_val]
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
     dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(int).sum())
@@ -291,6 +345,18 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
 
     return fig
+
+
+
+@app.callback(Output('output-provider', 'children'),
+              Input('danger-danger-provider', 'submit_n_clicks'))
+def update_output(submit_n_clicks):
+    """ documentation: https://dash.plotly.com/dash-core-components/confirmdialogprovider"""
+    if not submit_n_clicks:
+        return ''
+    return """
+        Ευχαριστούμε που χρησιμοποιήσατε τις οδηγίες.
+    """
 
 
 
