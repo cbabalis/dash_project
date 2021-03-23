@@ -66,7 +66,7 @@ sample_df = []
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 MONTH = 'Μήνας'
-image = 'url(https://commons.wikimedia.org/wiki/File:Location_map_of_WesternGreece_(Greece).svg)'
+image = 'url(https://upload.wikimedia.org/wikipedia/commons/0/06/Location_map_of_WesternGreece_%28Greece%29.svg)'
 
 
 geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
@@ -141,16 +141,23 @@ app.layout = html.Div([
     ],
              className='row'),
     # filters here
+    html.Div([
     html.H3("Επιλογή Μεταβλητών"),
     # geospatial filters
     html.Div([
-        html.Label("Επιλέξτε έτος προβολής"),
+        html.Label("Επιλέξτε έτος προβολής",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='year-radio'),
-        html.Label("Επιλέξτε Εδαφικές Μονάδες"),
+        html.Label("Επιλέξτε Εδαφικές Μονάδες",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='countries-radio',
                           options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
                           value=''),
-        html.Label("Επιλέξτε Περιοχές"),
+        html.Label("Επιλέξτε Περιοχές",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='cities-radio', multi=True),],
                                 style = {'width': '400px',
                                     'fontSize' : '15px',
@@ -158,13 +165,19 @@ app.layout = html.Div([
                                     'display': 'inline-block'}),
     # product filters
     html.Div([
-        html.Label("Επιλέξτε πίνακα προς προβολή"),
+        html.Label("Επιλέξτε πίνακα προς προβολή",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='availability-radio'),
-        html.Label("Επιλέξτε Αγροτικά Προϊόντα"),
+        html.Label("Επιλέξτε Αγροτικά Προϊόντα",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='products-radio',
                           options=[{'label': k, 'value': k} for k in product_categories],
                           value=''),
-        html.Label("Επιλέξτε Τιμές"),
+        html.Label("Επιλέξτε Τιμές",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='products-radio-val', multi=True),],
                                 style = {'width': '350px',
                                     'fontSize' : '15px',
@@ -173,7 +186,9 @@ app.layout = html.Div([
     
     # values filters
     html.Div([
-        html.Label("Επιλέξτε Τιμή Προβολής (για διάγραμμα)"),
+        html.Label("Επιλέξτε Τιμή Προβολής (για διάγραμμα)",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='column-sum',
                           options=[{'label': k, 'value': k} for k in vals_categories],
                           value=''),
@@ -181,7 +196,9 @@ app.layout = html.Div([
                                     'fontSize' : '15px',
                                     'padding-left' : '50px',
                                     'display': 'inline-block'}),
-    html.Div([html.Label("Επιλογή Γραφήματος"),
+    html.Div([html.Label("Επιλογή Γραφήματος",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
         dcc.Dropdown(id='chart-choice',
                           options=[{'label': k, 'value': k} for k in chart_types],
                           value='Γράφημα Στήλης'),
@@ -189,6 +206,10 @@ app.layout = html.Div([
                                     'fontSize' : '15px',
                                     'padding-left' : '50px',
                                     'display': 'inline-block'}),
+    ],
+                      style = {'background-image':image,
+                                    'background-size':'cover',
+                                    'background-position':'right'}),
     # table here
     html.Hr(),
     html.Div(id='display-selected-table',  className='tableDiv'),
@@ -203,10 +224,7 @@ app.layout = html.Div([
                     marks={i: str(i) for i in range(0, 12)},
                     value=0),
     html.Div(id='output-container-slider')
-],
-                      style = {'background-image':image,
-                                    'background-size':'cover',
-                                    'background-position':'right'})
+])
 
 
 @app.callback(
