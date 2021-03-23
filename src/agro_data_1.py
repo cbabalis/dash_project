@@ -19,8 +19,10 @@ my_path = 'matrices_to_show/'
 onlyfiles = [f for f in listdir(my_path) if isfile(join(my_path, f))]
 
 matrix_text = '''
-### Πίνακας Προϊόντων ανά Περιφέρεια της Ελλάδας.
-*Σύντομη περιγραφή*: Επιλογή με βάση τον κωδικό Νuts 2.
+### Ετήσια παραγωγή αγροτικών προϊόντων ανά περιοχή
+Ο Πίνακας παρέχει δεδομένα για την αγροτική παραγωγή της Ελλάδας σε επίπεδο Περιφερειακών Ενοτήτων (σύμφωνα με το Σχέδιο) Καλλικράτη και έχει δημιουργηθεί με συνδυασμό στοιχείων από τις πηγές:  
+- ΕΛΣΤΑΤ που αφορούν στην ετήσια παραγωγή αγροτικών προϊόντων σε επίπεδο Περιφερειακών Ενοτήτων καθώς και στη κατανάλωση νωπών αγροτικών προϊόντων (έρευνα Οικογενειακών Προϋπολογισμών)
+- FAO που αφορούν στις ποσότητες αγροτικών προϊόντων που προορίζονται για απευθείας κατανάλωση, προς μεταποίηση, προς ζωοτροφή ή άλλες χρήσεις (απώλειες λόγω αποθήκευσης και μεταφοράς, σπόρο και άλλες χρήσεις) 
 '''
 
 help_text = '''
@@ -127,9 +129,18 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.H1("Δεδομένα και Διαγράμματα",  style={'textAlign':'center'}),
     html.Hr(),
+    # tabs here
+    html.Div([
+        dcc.Tabs(id="tabs-styled-with-inline", value='tab-1', children=[
+            dcc.Tab(label='Πίνακας και Περιεχόμενα', value='tab-1'),
+            dcc.Tab(label='Οδηγίες Χρήσης', value='tab-2'),
+        ]),
+        html.Div(id='tabs-content-inline')
+    ]),
+    # end of tabs here
     # text here
     html.Div([
-    dcc.Markdown(matrix_text),
+    #dcc.Markdown(matrix_text), TODO this in case of missing
     dcc.ConfirmDialogProvider(children=html.Button(
             'Οδηγίες Χρήσης',
             style={'float': 'right','margin': 'auto'}
@@ -145,6 +156,10 @@ app.layout = html.Div([
     html.H3("Επιλογή Μεταβλητών"),
     # geospatial filters
     html.Div([
+        html.Label("Επιλέξτε πίνακα προς προβολή",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px'}),
+        dcc.Dropdown(id='availability-radio'),
         html.Label("Επιλέξτε έτος προβολής",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
@@ -165,10 +180,6 @@ app.layout = html.Div([
                                     'display': 'inline-block'}),
     # product filters
     html.Div([
-        html.Label("Επιλέξτε πίνακα προς προβολή",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='availability-radio'),
         html.Label("Επιλέξτε Αγροτικά Προϊόντα",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
@@ -397,6 +408,29 @@ def update_slider(value):
     if value == 0:
         return "Βλέπετε τα αποτελέσματα για όλους τους μήνες."
     return "Επιλέξατε τον '{}' μήνα".format(value)
+
+
+@app.callback(Output('tabs-content-inline', 'children'),
+              Input('tabs-styled-with-inline', 'value'))
+def render_content(tab):
+    if tab == 'tab-1':
+        return html.Div([
+            #html.H3('Tab content 1')
+            dcc.Markdown(matrix_text)
+        ])
+    elif tab == 'tab-2':
+        return html.Div([
+            #html.H3('Tab content 2')
+            dcc.Markdown(help_text)
+        ])
+    elif tab == 'tab-3':
+        return html.Div([
+            html.H3('Tab content 3')
+        ])
+    elif tab == 'tab-4':
+        return html.Div([
+            html.H3('Tab content 4')
+        ])
 
 
 if __name__ == '__main__':
