@@ -59,6 +59,7 @@ def load_matrix(selected_matrix):
     return sample_df
 
 
+sample_df = []
 # sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
 # sample_df = sample_df.fillna(0)
 # sample_df = convert_weeks_to_units(sample_df)
@@ -205,7 +206,7 @@ app.layout = html.Div([
     [Input('availability-radio', 'value'),
     Input('countries-radio', 'value')])
 def set_cities_options(selected_matrix, selected_country):
-    sample_df = load_matrix(selected_matrix)
+    #sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
 
 
@@ -220,7 +221,7 @@ def set_cities_value(available_options):
     [Input('availability-radio', 'value'),
     Input('products-radio', 'value')])
 def set_products_options(selected_matrix, selected_country):
-    sample_df = load_matrix(selected_matrix)
+    #sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[selected_country].unique()]
 
 
@@ -244,6 +245,7 @@ def set_products_options(selected_country):
     [Input('availability-radio', 'value'),
     Input('year-radio', 'value')])
 def set_products_options(selected_matrix, selected_country):
+    global sample_df
     sample_df = load_matrix(selected_matrix)
     return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
 
@@ -259,9 +261,6 @@ def set_products_options(selected_matrix, selected_country):
     Input('year-radio', 'value')
     ])
 def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val):
-    matrix_filepath = my_path + selected_matrix
-    sample_df = pd.read_csv(matrix_filepath, delimiter='\t')
-    sample_df = refine_df(sample_df)
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
@@ -331,7 +330,7 @@ def get_chart_choice(available_options):
     Input('availability-radio', 'value'),
     Input('year-radio', 'value')])
 def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val):
-    sample_df = load_matrix(selected_matrix)
+    #sample_df = load_matrix(selected_matrix)
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
     if (year_val):
