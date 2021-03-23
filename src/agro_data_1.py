@@ -40,7 +40,7 @@ def convert_weeks_to_units(df):
     df['week'] = df['week'].astype(int)
     df['LastDayWeek'] = pd.to_datetime((df['week']-1).astype(str) + "6", format="%Y%U%w")
     # convert to months, quarters in new columns
-    df['Μήνας'] = pd.DatetimeIndex(df['LastDayWeek']).month
+    df[MONTH] = pd.DatetimeIndex(df['LastDayWeek']).month
     df['Τετράμηνο'] = pd.DatetimeIndex(df['LastDayWeek']).quarter
     # return dataframe
     return df
@@ -65,6 +65,7 @@ sample_df = []
 # sample_df = convert_weeks_to_units(sample_df)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
+MONTH = 'Μήνας'
 image = 'url(https://commons.wikimedia.org/wiki/File:Location_map_of_WesternGreece_(Greece).svg)'
 
 
@@ -194,7 +195,14 @@ app.layout = html.Div([
     
     # graphs here
     html.Hr(),
-    dcc.Graph(id='indicator-graphic-multi-sum'),   
+    dcc.Graph(id='indicator-graphic-multi-sum'),
+    dcc.Slider(id='slider',
+                    min=1,
+                    max=12,
+                    step=1,
+                    marks={i: str(i) for i in range(0, 12)},
+                    value=0),
+    html.Div(id='output-container-slider')
 ],
                       style = {'background-image':image,
                                     'background-size':'cover',
@@ -328,14 +336,20 @@ def get_chart_choice(available_options):
     Input('column-sum', 'value'),
     Input('chart-choice', 'value'),
     Input('availability-radio', 'value'),
-    Input('year-radio', 'value')])
-def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val):
+    Input('year-radio', 'value'),
+    Input('slider', 'value')
+    ])
+def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val, month_val):
     #sample_df = load_matrix(selected_matrix)
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
-    dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(int).sum())
+    if (month_val):
+        dff = dff[dff[MONTH] == month_val]
+    elif month_val == 0:
+        dff = dff
+    dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(int).sum())
     dff = dff.reset_index()
     
     if chart_type == 'Γράφημα Στήλης':
@@ -344,7 +358,6 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
 
     return fig
-
 
 
 @app.callback(Output('output-provider', 'children'),
@@ -357,6 +370,15 @@ def update_output(submit_n_clicks):
         Ευχαριστούμε που χρησιμοποιήσατε τις οδηγίες.
     """
 
+
+@app.callback(
+    Output('output-container-slider', 'children'),
+    [Input('slider', 'value')]
+)
+def update_slider(value):
+    if value == 0:
+        return "Βλέπετε τα αποτελέσματα για όλους τους μήνες."
+    return "Επιλέξατε τον '{}' μήνα".format(value)
 
 
 if __name__ == '__main__':
