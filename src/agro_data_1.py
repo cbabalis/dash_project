@@ -11,6 +11,7 @@ import plotly.express as px
 # following two lines for reading filenames from disk
 from os import listdir
 from os.path import isfile, join
+import os
 
 
 import pdb
@@ -28,10 +29,26 @@ matrix_text = '''
 help_text = '''
 ΕΠΕΞΗΓΗΣΕΙΣ ΤΗΣ ΕΦΑΡΜΟΓΗΣ
 
-Οδηγίες χρήσης:
-- Πρώτα επιλέγουμε από το φίλτρο επιλογής πίνακα.
+*Οδηγίες χρήσης:*
+
+- Η εφαρμογή αυτή δίνει την δυνατότητα στον χρήστη να προβάλλει την επιθυμητή πληροφορία από μια μεγάλη βάση δεδομένων.
+- Αυτό γίνεται με χρήση φίλτρων.
+
+#### Σειρά επιλογής φίλτρων.
+- Πρώτα επιλέγουμε τον πίνακα που μας ενδιαφέρει από το αντίστοιχο φίλτρο επιλογής πίνακα.
+- Στη συνέχεια επιλέγουμε την χρονιά που μας ενδιαφέρει.
+    * __Περιμένουμε μέχρι να εμφανιστεί η επιλογή!__
 - Έπειτα επιλέγουμε τιμές στα υπόλοιπα φίλτρα.
-- Περιμένουμε λίγο.
+- Περιμένουμε μέχρι να δούμε τις επιλογές μας σε πίνακα.
+
+#### Χρήση διαγραμμάτων
+- Με το φίλτρο επιλογής διαγράμματος, επιλέγουμε τύπο διαγράμματος.
+- Παρέχονται δύο διαγράμματα:
+    - πίτα
+    - μπάρες
+- Στο τέλος της σελίδας υπάρχει μπάρα επιλογής μήνα για την χρονιά που έχουμε επιλέξει.
+    - στην επιλογή 0, προβάλλονται όλα τα στατιστικά για μία χρονιά.
+    - σε κάθε άλλη επιλογή, προβάλλεται ο μήνας επιλογής.
 '''
 
 
@@ -68,11 +85,12 @@ sample_df = []
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 MONTH = 'Μήνας'
-image = 'url(https://upload.wikimedia.org/wikipedia/commons/0/06/Location_map_of_WesternGreece_%28Greece%29.svg)'
+#image = 'url(https://upload.wikimedia.org/wikipedia/commons/0/06/Location_map_of_WesternGreece_%28Greece%29.svg)'
+image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
 
 
-geospatial_names = ['Επιλογή με βάση τον κωδικό NUTS2 της περιφέρειας', 'Επιλογή με βάση το όνομα της Περιφέρειας (NUTS2)','Επιλογή με βάση τον κωδικό NUTS3 του Νομού','Επιλογή με βάση το όνομα του Νομού (NUTS3)']
-geospatial_categories = ['κωδ. NUTS2', 'Περιφέρειες (NUTS2)', 'κωδ. NUTS3', 'Περ. Ενότητες (NUTS3)']
+geospatial_names = ['NUTS2 (κωδικοποίηση NUTS - επίπεδο 2)', 'NUTS3 (κωδικοποίηση NUTS - επίπεδο 3)', 'Όνομα Γεωγραφικής Ενότητας - Επίπεδο Περιφέρειας','Όνομα Γεωγραφικής Ενότητας - Επίπεδο Νομού']
+geospatial_categories = ['κωδ. NUTS2', 'κωδ. NUTS3', 'Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 #vals_categories = ['Εκτάσεις (σε στρέμματα)', 'Παραγωγή (σε τόνους)', 'Πλήθος Δέντρων', 'Έτος Αναφοράς']
 vals_categories = ['Παραγωγή (σε τόνους)', 'Έτος Αναφοράς']
@@ -127,20 +145,11 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1("Δεδομένα και Διαγράμματα",  style={'textAlign':'center'}),
+    html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
     html.Hr(),
-    # tabs here
-    html.Div([
-        dcc.Tabs(id="tabs-styled-with-inline", value='tab-1', children=[
-            dcc.Tab(label='Πίνακας και Περιεχόμενα', value='tab-1'),
-            dcc.Tab(label='Οδηγίες Χρήσης', value='tab-2'),
-        ]),
-        html.Div(id='tabs-content-inline')
-    ]),
-    # end of tabs here
     # text here
     html.Div([
-    #dcc.Markdown(matrix_text), TODO this in case of missing
+    dcc.Markdown(matrix_text),
     dcc.ConfirmDialogProvider(children=html.Button(
             'Οδηγίες Χρήσης',
             style={'float': 'right','margin': 'auto'}
@@ -153,24 +162,32 @@ app.layout = html.Div([
              className='row'),
     # filters here
     html.Div([
-    html.H3("Επιλογή Μεταβλητών"),
+        html.Div([
+            html.Label("ΣΥΝΟΛΟ ΔΕΔΟΜΕΝΩΝ",
+                   style={'font-weight': 'bold',
+                          'fontSize' : '17px',
+                          'margin-left':'auto',
+                          'margin-right':'auto',
+                          'display':'block'}),
+        dcc.Dropdown(id='availability-radio',
+                     style={"display": "block",
+            "margin-left": "auto",
+            "margin-right": "auto",
+            "width":"80%"}),
+        ]),
     # geospatial filters
     html.Div([
-        html.Label("Επιλέξτε πίνακα προς προβολή",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='availability-radio'),
-        html.Label("Επιλέξτε έτος προβολής",
+        html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
         dcc.Dropdown(id='year-radio'),
-        html.Label("Επιλέξτε Εδαφικές Μονάδες",
+        html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
         dcc.Dropdown(id='countries-radio',
                           options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
                           value=''),
-        html.Label("Επιλέξτε Περιοχές",
+        html.Label("ΠΕΡΙΟΧΕΣ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
         dcc.Dropdown(id='cities-radio', multi=True),],
@@ -180,13 +197,13 @@ app.layout = html.Div([
                                     'display': 'inline-block'}),
     # product filters
     html.Div([
-        html.Label("Επιλέξτε Αγροτικά Προϊόντα",
+        html.Label("ΚΑΤΗΓΟΡΙΕΣ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
         dcc.Dropdown(id='products-radio',
                           options=[{'label': k, 'value': k} for k in product_categories],
                           value=''),
-        html.Label("Επιλέξτε Τιμές",
+        html.Label("ΠΡΟΪΟΝ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
         dcc.Dropdown(id='products-radio-val', multi=True),],
@@ -207,10 +224,10 @@ app.layout = html.Div([
                                     'fontSize' : '15px',
                                     'padding-left' : '50px',
                                     'display': 'inline-block'}),
-    html.Div([html.Label("Επιλογή Γραφήματος",
+    html.Div([html.Label("ΕΠΙΛΟΓΗ ΓΡΑΦΗΜΑΤΟΣ",
                    style={'font-weight': 'bold',
                           'fontSize' : '17px'}),
-        dcc.Dropdown(id='chart-choice',
+        dcc.RadioItems(id='chart-choice',
                           options=[{'label': k, 'value': k} for k in chart_types],
                           value='Γράφημα Στήλης'),
     ],style = {'width': '350px',
@@ -409,28 +426,6 @@ def update_slider(value):
         return "Βλέπετε τα αποτελέσματα για όλους τους μήνες."
     return "Επιλέξατε τον '{}' μήνα".format(value)
 
-
-@app.callback(Output('tabs-content-inline', 'children'),
-              Input('tabs-styled-with-inline', 'value'))
-def render_content(tab):
-    if tab == 'tab-1':
-        return html.Div([
-            #html.H3('Tab content 1')
-            dcc.Markdown(matrix_text)
-        ])
-    elif tab == 'tab-2':
-        return html.Div([
-            #html.H3('Tab content 2')
-            dcc.Markdown(help_text)
-        ])
-    elif tab == 'tab-3':
-        return html.Div([
-            html.H3('Tab content 3')
-        ])
-    elif tab == 'tab-4':
-        return html.Div([
-            html.H3('Tab content 4')
-        ])
 
 
 if __name__ == '__main__':
