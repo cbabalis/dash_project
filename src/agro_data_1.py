@@ -85,8 +85,9 @@ sample_df = []
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 MONTH = 'Μήνας'
-#image = 'url(https://upload.wikimedia.org/wikipedia/commons/0/06/Location_map_of_WesternGreece_%28Greece%29.svg)'
-image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
+# doc for image: https://community.plotly.com/t/background-image/21199/5
+#image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
+image = 'url("assets/ampeli-dash.png")'
 
 
 geospatial_names = ['NUTS2 (κωδικοποίηση NUTS - επίπεδο 2)', 'NUTS3 (κωδικοποίηση NUTS - επίπεδο 3)', 'Όνομα Γεωγραφικής Ενότητας - Επίπεδο Περιφέρειας','Όνομα Γεωγραφικής Ενότητας - Επίπεδο Νομού']
@@ -173,7 +174,7 @@ app.layout = html.Div([
                      style={"display": "block",
             "margin-left": "auto",
             "margin-right": "auto",
-            "width":"80%"}),
+            "width":"80%"}), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
         ]),
     # geospatial filters
     html.Div([
@@ -241,17 +242,17 @@ app.layout = html.Div([
     # table here
     html.Hr(),
     html.Div(id='display-selected-table',  className='tableDiv'),
-    
-    # graphs here
-    html.Hr(),
-    dcc.Graph(id='indicator-graphic-multi-sum'),
     dcc.Slider(id='slider',
                     min=1,
                     max=12,
                     step=1,
                     marks={i: str(i) for i in range(0, 12)},
                     value=0),
-    html.Div(id='output-container-slider')
+    html.Div(id='output-container-slider'),
+    
+    # graphs here
+    html.Hr(),
+    dcc.Graph(id='indicator-graphic-multi-sum'),
 ])
 
 
