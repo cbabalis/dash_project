@@ -201,7 +201,8 @@ app.layout = html.Div([
                                         style = {'width': '440px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
-                                            'display': 'inline-block'}),
+                                            'display': 'inline-block',
+                                            }),
             # product filters
             html.Div([
                 html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ"),
@@ -248,6 +249,7 @@ app.layout = html.Div([
     html.Div(id='display-selected-table',  className='tableDiv'),
     html.Hr(),
     html.Div([
+    html.H5("Επιλογή Περιόδου"),
     dcc.Slider(id='slider',
                     min=1,
                     max=12,
@@ -256,6 +258,8 @@ app.layout = html.Div([
                     value=0),
     html.Div(id='output-container-slider'),
     ],  style={'backgroundColor':'#CEFFBD',
+               'font-weight': 'bold',
+               'fontSize' : '17px',
                'color':'#111111'}),
     
     # graphs here
@@ -437,8 +441,8 @@ def update_output(submit_n_clicks):
 )
 def update_slider(value):
     if value == 0:
-        return "Βλέπετε τα αποτελέσματα για όλους τους μήνες."
-    return "Επιλέξατε τον '{}' μήνα".format(value)
+        return "Αποτελέσματα για όλους τους μήνες."
+    return "Επιλέξατε τον {}o μήνα".format(value)
 
 
 
