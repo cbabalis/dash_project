@@ -321,12 +321,17 @@ def set_products_options(selected_matrix, selected_country):
     Input('products-radio', 'value'),
     Input('products-radio-val', 'value'),
     Input('availability-radio', 'value'),
-    Input('year-radio', 'value')
+    Input('year-radio', 'value'),
+    Input('slider', 'value')
     ])
-def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val):
+def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
+    if (month_val):
+        dff = dff[dff[MONTH] == month_val]
+    elif month_val == 0:
+        dff = dff
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     return html.Div([
         dash_table.DataTable(
