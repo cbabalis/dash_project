@@ -20,10 +20,7 @@ my_path = 'matrices_to_show/'
 onlyfiles = [f for f in listdir(my_path) if isfile(join(my_path, f))]
 
 matrix_text = '''
-### Ετήσια παραγωγή αγροτικών προϊόντων ανά περιοχή
-Ο Πίνακας παρέχει δεδομένα για την αγροτική παραγωγή της Ελλάδας σε επίπεδο Περιφερειακών Ενοτήτων (σύμφωνα με το Σχέδιο) Καλλικράτη και έχει δημιουργηθεί με συνδυασμό στοιχείων από τις πηγές:  
-- ΕΛΣΤΑΤ που αφορούν στην ετήσια παραγωγή αγροτικών προϊόντων σε επίπεδο Περιφερειακών Ενοτήτων καθώς και στη κατανάλωση νωπών αγροτικών προϊόντων (έρευνα Οικογενειακών Προϋπολογισμών)
-- FAO που αφορούν στις ποσότητες αγροτικών προϊόντων που προορίζονται για απευθείας κατανάλωση, προς μεταποίηση, προς ζωοτροφή ή άλλες χρήσεις (απώλειες λόγω αποθήκευσης και μεταφοράς, σπόρο και άλλες χρήσεις) 
+#### Ετήσια παραγωγή νωπών και μεταποιημένων αγροτικών προϊόντων και ζωοτροφών σε επίπεδο περιφερειακών ενοτήτων
 '''
 
 help_text = '''
@@ -92,8 +89,8 @@ image = 'url("assets/ampeli-dash.png")'
 
 geospatial_names = ['NUTS2 (κωδικοποίηση NUTS - επίπεδο 2)', 'NUTS3 (κωδικοποίηση NUTS - επίπεδο 3)', 'Όνομα Γεωγραφικής Ενότητας - Επίπεδο Περιφέρειας','Όνομα Γεωγραφικής Ενότητας - Επίπεδο Νομού']
 geospatial_categories = ['κωδ. NUTS2', 'κωδ. NUTS3', 'Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)']
+product_names = ['Μεμονωμένα Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
-#vals_categories = ['Εκτάσεις (σε στρέμματα)', 'Παραγωγή (σε τόνους)', 'Πλήθος Δέντρων', 'Έτος Αναφοράς']
 vals_categories = ['Παραγωγή (σε τόνους)', 'Έτος Αναφοράς']
 chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
 
@@ -164,84 +161,93 @@ app.layout = html.Div([
     # filters here
     html.Div([
         html.Div([
-            html.Label("ΣΥΝΟΛΟ ΔΕΔΟΜΕΝΩΝ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px',
-                          'margin-left':'auto',
-                          'margin-right':'auto',
-                          'display':'block'}),
-        dcc.Dropdown(id='availability-radio',
-                     style={"display": "block",
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "width":"80%"}), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
-        ]),
-    # geospatial filters
-    html.Div([
-        html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='year-radio'),
-        html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='countries-radio',
-                          options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
-                          value=''),
-        html.Label("ΠΕΡΙΟΧΕΣ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='cities-radio', multi=True),],
-                                style = {'width': '400px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '50px',
-                                    'display': 'inline-block'}),
-    # product filters
-    html.Div([
-        html.Label("ΚΑΤΗΓΟΡΙΕΣ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='products-radio',
-                          options=[{'label': k, 'value': k} for k in product_categories],
-                          value=''),
-        html.Label("ΠΡΟΪΟΝ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='products-radio-val', multi=True),],
-                                style = {'width': '350px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '50px',
-                                    'display': 'inline-block'}),
-    
-    # values filters
-    html.Div([
-        html.Label("Επιλέξτε Τιμή Προβολής (για διάγραμμα)",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.Dropdown(id='column-sum',
-                          options=[{'label': k, 'value': k} for k in vals_categories],
-                          value=''),
-    ],style = {'width': '350px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '50px',
-                                    'display': 'inline-block'}),
-    html.Div([html.Label("ΕΠΙΛΟΓΗ ΓΡΑΦΗΜΑΤΟΣ",
-                   style={'font-weight': 'bold',
-                          'fontSize' : '17px'}),
-        dcc.RadioItems(id='chart-choice',
-                          options=[{'label': k, 'value': k} for k in chart_types],
-                          value='Γράφημα Στήλης'),
-    ],style = {'width': '350px',
-                                    'fontSize' : '15px',
-                                    'padding-left' : '50px',
-                                    'display': 'inline-block'}),
-    ],
-                      style = {'background-image':image,
+            html.Div([
+                html.Label("ΔΙΑΘΕΣΙΜΑ ΣΥΝΟΛΑ ΔΕΔΟΜΕΝΩΝ",
+                    style={'font-weight': 'bold',
+                            'fontSize' : '17px',
+                            'margin-left':'auto',
+                            'margin-right':'auto',
+                            'display':'block'}),
+                dcc.Dropdown(id='availability-radio',
+                            style={"display": "block",
+                    "margin-left": "auto",
+                    "margin-right": "auto",
+                    # "width":"60%"
+                    }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
+            ], className='six columns'),
+            html.Div([
+                html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='year-radio'),
+            ], className='three columns'),
+        ], className='row',
+                 style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
+        html.Hr(),
+        html.Div([
+            # geospatial filters
+            html.Div([
+                html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ"),
+                html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='countries-radio',
+                                options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
+                                value=''),
+                html.Label("ΠΕΡΙΟΧΕΣ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='cities-radio', multi=True),],
+                                        style = {'width': '440px',
+                                            'fontSize' : '15px',
+                                            'padding-left' : '50px',
+                                            'display': 'inline-block'}),
+            # product filters
+            html.Div([
+                html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ"),
+                html.Label("ΚΑΤΗΓΟΡΙΕΣ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='products-radio',
+                                options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
+                                value=''),
+                html.Label("ΠΡΟΪΟΝ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='products-radio-val', multi=True),],
+                                        style = {'width': '440px',
+                                            'fontSize' : '15px',
+                                            'padding-left' : '50px',
+                                            'display': 'inline-block'}),
+            
+            # values filters
+            html.Div([
+                html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.Dropdown(id='column-sum',
+                                options=[{'label': k, 'value': k} for k in vals_categories],
+                                value=''),
+                html.Label("ΕΠΙΛΟΓΗ ΓΡΑΦΗΜΑΤΟΣ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '17px'}),
+                dcc.RadioItems(id='chart-choice',
+                                options=[{'label': k, 'value': k} for k in chart_types],
+                                value='Γράφημα Στήλης',
+                                labelStyle={'display': 'inline-block', 'text-align': 'justify'}),
+            ],style = {'width': '350px',
+                                            'fontSize' : '15px',
+                                            'padding-left' : '50px',
+                                            'display': 'inline-block'}),
+        ],className='row'),
+    ],style = {'background-image':image,
                                     'background-size':'cover',
                                     'background-position':'right'}),
     # table here
     html.Hr(),
     html.Div(id='display-selected-table',  className='tableDiv'),
+    html.Hr(),
+    html.Div([
     dcc.Slider(id='slider',
                     min=1,
                     max=12,
@@ -249,6 +255,8 @@ app.layout = html.Div([
                     marks={i: str(i) for i in range(0, 12)},
                     value=0),
     html.Div(id='output-container-slider'),
+    ],  style={'backgroundColor':'#CEFFBD',
+               'color':'#111111'}),
     
     # graphs here
     html.Hr(),
