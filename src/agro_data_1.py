@@ -93,6 +93,7 @@ product_names = ['Μεμονωμένα Αγροτικά Προϊόντα', 'Κα
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 vals_categories = ['Παραγωγή (σε τόνους)', 'Έτος Αναφοράς']
 chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
+month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβρουάριος', 3:'Μάρτιος', 4:'Απρίλιος', 5:'Μάιος', 6:'Ιούνιος', 7:'Ιούλιος', 8:'Αύγουστος', 9:'Σεπτέμβριος', 10:'Οκτώβριος', 11:'Νοέμβριος', 12:'Δεκέμβριος'}
 
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
@@ -254,7 +255,7 @@ app.layout = html.Div([
                     min=1,
                     max=12,
                     step=1,
-                    marks={i: str(i) for i in range(0, 12)},
+                    marks= month_dict,#{i: str(i) for i in range(0, 12)},
                     value=0),
     html.Div(id='output-container-slider'),
     ],  style={'backgroundColor':'#CEFFBD',
@@ -352,8 +353,8 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
              selected_columns=[],
              selected_rows=[],
              hidden_columns=['LastDayWeek', 'week'],
-             page_action="native",
-             page_current= 0,
+            #  page_action="native",
+            #  page_current= 0,
              page_size= 10,
              style_table={
                 'maxHeight': '50%',
