@@ -86,6 +86,7 @@ MONTH = 'Μήνας'
 # doc for image: https://community.plotly.com/t/background-image/21199/5
 #image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
 image = 'url("assets/ampeli-dash.png")'
+results_path = '../od-dash/data/prod_cons/'
 download_df = []
 
 
@@ -456,7 +457,7 @@ def update_slider(value):
 @app.callback(Output('download-link', 'href'),
               Input('csv_to_disk', 'n_clicks'),)
 def save_df_conf_to_disk(btn_click):
-    fpath = my_path + 'temp_results.csv'
+    fpath = results_path + 'temp_results.csv'
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
         download_df.to_csv(fpath, sep='\t')
