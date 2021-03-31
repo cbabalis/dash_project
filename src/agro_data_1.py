@@ -119,9 +119,9 @@ def get_bar_figure(dff, x_col, y_col, col_sum):
     
     fig.update_traces( textposition='auto')
 
-    fig.update_xaxes(title=y_col)
+    fig.update_xaxes(title=x_col)
 
-    fig.update_yaxes(title=col_sum)
+    fig.update_yaxes(title=y_col)
     
     return fig
 
@@ -443,7 +443,7 @@ def update_output(submit_n_clicks):
 def update_slider(value):
     if value == 0:
         return "Αποτελέσματα για όλους τους μήνες."
-    return "Επιλέξατε τον {}o μήνα".format(value)
+    return "Στοιχεία μέχρι τον {}o μήνα".format(value)
 
 
 
