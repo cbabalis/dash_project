@@ -8,6 +8,7 @@ from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.express as px
+import urllib
 # following two lines for reading filenames from disk
 from os import listdir
 from os.path import isfile, join
@@ -85,6 +86,7 @@ MONTH = 'Μήνας'
 # doc for image: https://community.plotly.com/t/background-image/21199/5
 #image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
 image = 'url("assets/ampeli-dash.png")'
+download_df = []
 
 
 geospatial_names = ['NUTS2 (κωδικοποίηση NUTS - επίπεδο 2)', 'NUTS3 (κωδικοποίηση NUTS - επίπεδο 3)', 'Όνομα Γεωγραφικής Ενότητας - Επίπεδο Περιφέρειας','Όνομα Γεωγραφικής Ενότητας - Επίπεδο Νομού']
@@ -266,6 +268,8 @@ app.layout = html.Div([
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
+    html.Button('Αποθήκευση Παραμέτρων', id='csv_to_disk', n_clicks=0),
+    html.Div(id='download-link'),
 ])
 
 
@@ -338,6 +342,8 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
     elif month_val == 0:
         dff = dff
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
+    global download_df
+    download_df = df_temp # remove this if it is not necessary
     return html.Div([
         dash_table.DataTable(
             id='main-table',
@@ -414,7 +420,7 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
         dff = dff[dff[MONTH] == month_val]
     elif month_val == 0:
         dff = dff
-    dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(int).sum())
+    dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
     dff = dff.reset_index()
     
     if chart_type == 'Γράφημα Στήλης':
@@ -445,6 +451,19 @@ def update_slider(value):
         return "Αποτελέσματα για όλους τους μήνες."
     return "Στοιχεία μέχρι τον {}o μήνα".format(value)
 
+
+
+@app.callback(Output('download-link', 'href'),
+              Input('csv_to_disk', 'n_clicks'),)
+def save_df_conf_to_disk(btn_click):
+    fpath = my_path + 'temp_results.csv'
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if 'csv_to_disk' in changed_id:
+        download_df.to_csv(fpath, sep='\t')
+        msg = 'Οι παράμετροι αποθηκεύθηκαν.'
+    else:
+        msg = 'Δεν επιλέχθηκαν όλες οι παράμετροι.'
+    return msg
 
 
 if __name__ == '__main__':
