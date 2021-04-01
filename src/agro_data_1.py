@@ -255,7 +255,7 @@ app.layout = html.Div([
     html.Div([
     html.H5("Επιλογή Περιόδου"),
     dcc.Slider(id='slider',
-                    min=1,
+                    min=0,
                     max=12,
                     step=1,
                     marks= month_dict,#{i: str(i) for i in range(0, 12)},
@@ -450,8 +450,8 @@ def update_output(submit_n_clicks):
 def update_slider(value):
     if value == 0:
         return "Αποτελέσματα για όλους τους μήνες."
-    return "Στοιχεία μέχρι τον {}o μήνα".format(value)
-
+    #return "Στοιχεία για τον {}o μήνα".format(value)
+    return "Τα στοιχεία αφορούν τον μήνα: {}".format(month_dict[value])
 
 
 @app.callback(Output('download-link', 'href'),
@@ -468,4 +468,4 @@ def save_df_conf_to_disk(btn_click):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8054)
