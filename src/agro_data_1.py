@@ -239,7 +239,7 @@ app.layout = html.Div([
                 dcc.Dropdown(id='chart-choice',
                                 options=[{'label': k, 'value': k} for k in chart_types],
                                 value='Γράφημα Στήλης',
-                                )#labelStyle={'display': 'inline-block', 'text-align': 'justify'}),
+                                )#labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
             ],style = {'width': '350px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
