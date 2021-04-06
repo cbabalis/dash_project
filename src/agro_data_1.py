@@ -183,7 +183,8 @@ app.layout = html.Div([
                 html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
-                dcc.Dropdown(id='year-radio'),
+                #dcc.Dropdown(id='year-radio'),
+                html.Div(id='year-radio'),
             ], className='three columns'),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
@@ -201,7 +202,9 @@ app.layout = html.Div([
                 html.Label("ΠΕΡΙΟΧΕΣ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
-                dcc.Dropdown(id='cities-radio', multi=True),],
+                dcc.Dropdown(id='cities-radio',
+                             multi=True,
+                             options=[]),],
                                         style = {'width': '440px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
@@ -219,7 +222,9 @@ app.layout = html.Div([
                 html.Label("ΠΡΟΪΟΝ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
-                dcc.Dropdown(id='products-radio-val', multi=True),],
+                dcc.Dropdown(id='products-radio-val',
+                             multi=True,
+                             options=[]),],
                                         style = {'width': '440px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
@@ -287,6 +292,8 @@ def set_cities_options(selected_matrix, selected_country):
     Output('cities-radio', 'value'),
     Input('cities-radio', 'options'))
 def set_cities_value(available_options):
+    if available_options is None:
+        raise PreventUpdate
     return available_options[0]['value']
 
 @app.callback(
@@ -314,13 +321,20 @@ def set_products_options(selected_country):
 
 
 @app.callback(
-    Output('year-radio', 'options'),
+    Output('year-radio', 'children'),
     [Input('availability-radio', 'value'),
     Input('year-radio', 'value')])
 def set_products_options(selected_matrix, selected_country):
     global sample_df
+    selectable=True
     sample_df = load_matrix(selected_matrix)
-    return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
+    if selected_matrix:
+        selectable=False
+    return html.Div([dcc.Dropdown(id='year-selection',
+                     options=[{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()],
+                     disabled=selectable
+    )
+    ])
 
 
 
