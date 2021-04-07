@@ -183,8 +183,8 @@ app.layout = html.Div([
                 html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
-                #dcc.Dropdown(id='year-radio'),
-                html.Div(id='year-radio'),
+                dcc.Dropdown(id='year-radio'),
+                #html.Div(id='year-radio'),
             ], className='three columns'),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
@@ -321,20 +321,22 @@ def set_products_options(selected_country):
 
 
 @app.callback(
-    Output('year-radio', 'children'),
+    Output('year-radio', 'options'),
     [Input('availability-radio', 'value'),
     Input('year-radio', 'value')])
 def set_products_options(selected_matrix, selected_country):
     global sample_df
     selectable=True
     sample_df = load_matrix(selected_matrix)
-    if selected_matrix:
-        selectable=False
-    return html.Div([dcc.Dropdown(id='year-selection',
-                     options=[{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()],
-                     disabled=selectable
-    )
-    ])
+    if not selected_matrix:
+        return ""
+    else:
+        return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
+    # return html.Div([dcc.Dropdown(id='year-selection',
+    #                  options=[{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()],
+    #                  disabled=selectable
+    # )
+    # ])
 
 
 
