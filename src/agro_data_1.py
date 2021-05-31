@@ -80,6 +80,13 @@ def load_matrix(selected_matrix):
     return sample_df
 
 
+def _create_results_name():
+    now = datetime.now()
+    created_on = now.strftime(("%Y-%m-%d-%H-%M-%S"))
+    results_name = 'custom_file_' + str(created_on) + '.csv'
+    return results_name
+
+
 sample_df = []
 # sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
 # sample_df = sample_df.fillna(0)
@@ -484,9 +491,7 @@ def update_slider(value):
               Input('csv_to_disk', 'n_clicks'),)
 def save_df_conf_to_disk(btn_click):
     # compute timestamp and name the filename.
-    now = datetime.now()
-    timestamp = datetime.timestamp(now)
-    results_name = 'custom_file_' + str(timestamp) + '.csv'
+    results_name = _create_results_name()
     fpath = results_path + results_name
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
