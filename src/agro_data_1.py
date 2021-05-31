@@ -12,6 +12,7 @@ import urllib
 # following two lines for reading filenames from disk
 from os import listdir
 from os.path import isfile, join
+from datetime import datetime
 import os
 
 
@@ -471,17 +472,20 @@ def update_slider(value):
     return "Τα στοιχεία αφορούν τον μήνα: {}".format(month_dict[value])
 
 
-@app.callback(Output('download-link', 'href'),
+@app.callback(Output('download-link', 'children'),
               Input('csv_to_disk', 'n_clicks'),)
 def save_df_conf_to_disk(btn_click):
-    fpath = results_path + 'temp_results.csv'
+    # compute timestamp and name the filename.
+    now = datetime.now()
+    timestamp = datetime.timestamp(now)
+    fpath = results_path + 'custom_file_' + str(timestamp) + '.csv'
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
         download_df.to_csv(fpath, sep='\t')
-        msg = 'Οι παράμετροι αποθηκεύθηκαν.'
+        msg = 'Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + fpath
     else:
-        msg = 'Δεν επιλέχθηκαν όλες οι παράμετροι.'
-    return msg
+        msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
+    return html.Div(msg)
 
 
 if __name__ == "__main__":
