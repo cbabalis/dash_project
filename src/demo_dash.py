@@ -57,19 +57,19 @@ import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
 
-df = pd.read_csv('data/Agro2018_no_nan.csv', delimiter='\t')
+df = pd.read_csv('data/agro2018/Agro2018_no_nanBABIS.csv', delimiter='\t')
 
 app = dash.Dash(__name__)
 #style={'visibility': 'hidden'}
 
 cols = df.columns
 dpdown = []
-for i in df['Region'].unique() :
+for i in df['Περιφερειακή Ενότητα (NUTS 3)'].unique() :
    str(dpdown.append({'label':i,'value':(i)}))
 
 
 dpdown2 = []
-for i in df['NUTS_2'].unique() :
+for i in df['Περιφέρεια (NUTS 2)'].unique() :
    str(dpdown.append({'label':i,'value':(i)}))
 
 
@@ -118,7 +118,7 @@ app.layout = html.Div([
     [dash.dependencies.Input('dropdown', 'value')])
 
 def display_table(dpdown):
-    df_temp = df[df['Region']==dpdown]
+    df_temp = df[df['Περιφερειακή Ενότητα (NUTS 3)']==dpdown]
     return html.Div([
         dt.DataTable(
             id='main-table',
@@ -142,4 +142,5 @@ def display_table(dpdown):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8053)
+    #app.run_server(debug=True, port=8053)
+    app.run_server(debug=True, host='147.102.154.65', port=8054)

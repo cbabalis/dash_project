@@ -484,5 +484,5 @@ def save_df_conf_to_disk(btn_click):
     return msg
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True, port=8054)
+if __name__ == "__main__":
+    app.run_server(debug=False, host='147.102.154.65', port=8054)
