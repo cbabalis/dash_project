@@ -13,6 +13,8 @@ import urllib
 from os import listdir
 from os.path import isfile, join
 from datetime import datetime
+from dash_extensions import Download
+from dash_extensions.snippets import send_data_frame
 import os
 
 
@@ -278,6 +280,12 @@ app.layout = html.Div([
     dcc.Graph(id='indicator-graphic-multi-sum'),
     html.Button('Αποθήκευση Παραμέτρων', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
+    html.Div(
+        [
+            html.Button("Download CSV", id="btn_csv"),
+            Download(id="download-dataframe-csv"),
+        ],
+    )
 ])
 
 
@@ -487,6 +495,15 @@ def save_df_conf_to_disk(btn_click):
     else:
         msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
     return html.Div(msg)
+
+
+@app.callback(
+    Output("download-dataframe-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    return send_data_frame(download_df.to_csv, "mydf.csv") # dash_extensions.snippets: send_data_frame
 
 
 if __name__ == "__main__":
