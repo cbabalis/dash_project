@@ -478,11 +478,12 @@ def save_df_conf_to_disk(btn_click):
     # compute timestamp and name the filename.
     now = datetime.now()
     timestamp = datetime.timestamp(now)
-    fpath = results_path + 'custom_file_' + str(timestamp) + '.csv'
+    results_name = 'custom_file_' + str(timestamp) + '.csv'
+    fpath = results_path + results_name
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
         download_df.to_csv(fpath, sep='\t')
-        msg = 'Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + fpath
+        msg = 'Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
     else:
         msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
     return html.Div(msg)
