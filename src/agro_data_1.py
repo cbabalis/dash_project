@@ -12,6 +12,9 @@ import urllib
 # following two lines for reading filenames from disk
 from os import listdir
 from os.path import isfile, join
+from datetime import datetime
+from dash_extensions import Download
+from dash_extensions.snippets import send_data_frame
 import os
 
 
@@ -75,6 +78,13 @@ def load_matrix(selected_matrix):
     sample_df = pd.read_csv(matrix_filepath, delimiter='\t')
     sample_df = refine_df(sample_df)
     return sample_df
+
+
+def _create_results_name():
+    now = datetime.now()
+    created_on = now.strftime(("%Y-%m-%d-%H-%M-%S"))
+    results_name = 'custom_file_' + str(created_on) + '.csv'
+    return results_name
 
 
 sample_df = []
@@ -277,6 +287,12 @@ app.layout = html.Div([
     dcc.Graph(id='indicator-graphic-multi-sum'),
     html.Button('Αποθήκευση Παραμέτρων', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
+    html.Div(
+        [
+            html.Button("Download CSV", id="btn_csv"),
+            Download(id="download-dataframe-csv"),
+        ],
+    )
 ])
 
 
@@ -471,18 +487,29 @@ def update_slider(value):
     return "Τα στοιχεία αφορούν τον μήνα: {}".format(month_dict[value])
 
 
-@app.callback(Output('download-link', 'href'),
+@app.callback(Output('download-link', 'children'),
               Input('csv_to_disk', 'n_clicks'),)
 def save_df_conf_to_disk(btn_click):
-    fpath = results_path + 'temp_results.csv'
+    # compute timestamp and name the filename.
+    results_name = _create_results_name()
+    fpath = results_path + results_name
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
         download_df.to_csv(fpath, sep='\t')
-        msg = 'Οι παράμετροι αποθηκεύθηκαν.'
+        msg = 'Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
     else:
-        msg = 'Δεν επιλέχθηκαν όλες οι παράμετροι.'
-    return msg
+        msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
+    return html.Div(msg)
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True, port=8054)
+@app.callback(
+    Output("download-dataframe-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    return send_data_frame(download_df.to_csv, "mydf.csv") # dash_extensions.snippets: send_data_frame
+
+
+if __name__ == "__main__":
+    app.run_server(debug=False, host='147.102.154.65', port=8054)
