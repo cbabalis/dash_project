@@ -185,7 +185,6 @@ def create_prod_cons_file(download_df, download_cons_df):
     cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
     # make an inner join because cons has more regional units
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
-    pdb.set_trace()
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
     return result
