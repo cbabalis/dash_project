@@ -100,6 +100,10 @@ image = 'url("assets/ampeli-dash.png")'
 results_path = '../od-dash/data/prod_cons/'
 download_df = []
 
+# TODO selection that is the same as the download_df, but for consumptions.
+# It has to be a variable later
+download_cons_df = []
+
 
 geospatial_names = ['NUTS2 (κωδικοποίηση NUTS - επίπεδο 2)', 'NUTS3 (κωδικοποίηση NUTS - επίπεδο 3)', 'Όνομα Γεωγραφικής Ενότητας - Επίπεδο Περιφέρειας','Όνομα Γεωγραφικής Ενότητας - Επίπεδο Νομού']
 geospatial_categories = ['κωδ. NUTS2', 'κωδ. NUTS3', 'Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)']
@@ -116,7 +120,17 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
     elif (isinstance(selected_city, str)):
         df_temp = sample_df[sample_df[selected_country] == selected_city]
     else:
-        df_temp= sample_df[sample_df[selected_country].isin(selected_city)]
+        df_temp = sample_df[sample_df[selected_country].isin(selected_city)]
+    return df_temp
+
+
+def _get_corresponding_cons_df(selected_country, selected_city):
+    if selected_country == '':
+        df_temp = load_matrix('Εβδομαδιαία_Ζήτηση_Νωπών_babis.csv')
+    elif (isinstance(selected_city, str)):
+        df_temp = sample_df[sample_df[selected_country] == selected_city]
+    else:
+        df_temp = sample_df[sample_df[selected_country].isin(selected_city)]
     return df_temp
 
 
@@ -150,6 +164,32 @@ def get_pie_figure(dff, x_col, col_sum, y_col):
         color="RebeccaPurple"
     ))
     return fig
+
+
+def create_prod_cons_file(download_df, download_cons_df):
+    """Method to create a productions-consumptions dataframe file
+    from the user's given custom parameters.
+
+    Args:
+        download_df (Dataframe): Custom productions file
+        download_cons_df (Dataframe): Custom consumptions file
+
+    Raises:
+        PreventUpdate: [description]
+
+    Returns:
+        [Dataframe]: A dataframe with prod-cons data.
+    """
+    # sum by amounts of products by reguinal units
+    prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
+    cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
+    # make an inner join because cons has more regional units
+    result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
+    pdb.set_trace()
+    del result['Περιφέρειες (NUTS2)_cons']
+    result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
+    return result
+    
 
 
 
@@ -285,7 +325,7 @@ app.layout = html.Div([
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
-    html.Button('Αποθήκευση Παραμέτρων', id='csv_to_disk', n_clicks=0),
+    html.Button('Αποθηκευση Παραμετρων', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
     html.Div(
         [
@@ -378,6 +418,9 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     global download_df
     download_df = df_temp # remove this if it is not necessary
+    # following two lines are for consumptions corresponding file
+    global download_cons_df
+    download_cons_df = _get_corresponding_cons_df(selected_prod_cat, selected_prod_val)
     return html.Div([
         dash_table.DataTable(
             id='main-table',
@@ -495,8 +538,10 @@ def save_df_conf_to_disk(btn_click):
     fpath = results_path + results_name
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
-        download_df.to_csv(fpath, sep='\t')
-        msg = 'Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
+        custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
+        #download_df.to_csv(fpath, sep='\t')
+        custom_prod_cons.to_csv(fpath, sep='\t')
+        msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων. Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
     else:
         msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
     return html.Div(msg)
