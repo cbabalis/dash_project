@@ -512,4 +512,4 @@ def func(n_clicks):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False, host='147.102.154.65', port=8054)
+    app.run_server(debug=False,port=8054) #  host='147.102.154.65', 
