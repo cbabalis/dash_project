@@ -539,7 +539,7 @@ def save_df_conf_to_disk(btn_click):
     if 'csv_to_disk' in changed_id:
         custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
         #download_df.to_csv(fpath, sep='\t')
-        custom_prod_cons.to_csv(fpath, sep='\t')
+        custom_prod_cons.to_csv(fpath, sep='\t', index=False)
         msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων. Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
     else:
         msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
