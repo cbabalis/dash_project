@@ -184,9 +184,11 @@ def create_prod_cons_file(download_df, download_cons_df):
     prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
     cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
     # make an inner join because cons has more regional units
+    pdb.set_trace()
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
+    pdb.set_trace()
     return result
     
 
@@ -324,13 +326,17 @@ app.layout = html.Div([
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
-    html.Button('Αποθηκευση Παραμετρων', id='csv_to_disk', n_clicks=0),
+    html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
     html.Div(
         [
-            html.Button("Download CSV", id="btn_csv"),
+            html.Button("Αποθήκευση αποτελεσμάτων με βάση τις επιλογές του χρήστη σε αρχείο CSV", id="btn_csv"),
             Download(id="download-dataframe-csv"),
         ],
+    ),
+    html.Div(
+        html.A(html.Button("Μετάβαση στον υπολογισμό μητρώου προέλευσης-προορισμού", className='three columns'),
+        href='http://147.102.154.65:8056/'), # https://github.com/plotly/dash-html-components/issues/16
     )
 ])
 
