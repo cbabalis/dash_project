@@ -184,11 +184,9 @@ def create_prod_cons_file(download_df, download_cons_df):
     prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
     cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
     # make an inner join because cons has more regional units
-    pdb.set_trace()
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
-    pdb.set_trace()
     return result
     
 
@@ -546,7 +544,7 @@ def save_df_conf_to_disk(btn_click):
         custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
         #download_df.to_csv(fpath, sep='\t')
         custom_prod_cons.to_csv(fpath, sep='\t', index=False)
-        msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων. Οι παράμετροι αποθηκεύθηκαν στο αρχείο ' + results_name
+        msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων με όνομα ' + results_name
     else:
         msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
     return html.Div(msg)
