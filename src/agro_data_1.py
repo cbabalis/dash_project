@@ -203,11 +203,12 @@ def _get_month_range(dff, month_vals):
     Returns:
         [Dataframe]: The dataframe within the range given.
     """
+    # if range slider value is the default, just return the dataframe.
+    # else, have the range desired as a dataframe and return it.
     if month_vals == [0,0]:
         return dff
     else:
         start_month, end_month = month_vals
-        print("start month is ", start_month, " and end month is ", end_month)
         dff = dff[(dff[MONTH] >= int(start_month)) & (dff[MONTH] <= int(end_month))]
         return dff
 
@@ -520,7 +521,8 @@ def get_chart_choice(available_options):
     Input('chart-choice', 'value'),
     Input('availability-radio', 'value'),
     Input('year-radio', 'value'),
-    Input('slider', 'value')
+    #Input('slider', 'value')
+    Input('range-slider', 'value')
     ])
 def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val, month_val):
     #sample_df = load_matrix(selected_matrix)
@@ -528,10 +530,11 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
     dff = dff[dff[y_col].isin(y_col_vals)]
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
-    if (month_val):
-        dff = dff[dff[MONTH] == month_val]
-    elif month_val == 0:
-        dff = dff
+    # if (month_val):
+    #     dff = dff[dff[MONTH] == month_val]
+    # elif month_val == 0:
+    #     dff = dff
+    dff = _get_month_range(dff, month_val)
     dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
     dff = dff.reset_index()
     
