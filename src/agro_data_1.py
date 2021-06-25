@@ -339,14 +339,14 @@ app.layout = html.Div([
         marks=month_dict,
         value=[0,0]
     ),
-    html.Div(id='range-output-container-slider'),
-    dcc.Slider(id='slider',
-                    min=0,
-                    max=12,
-                    step=1,
-                    marks= {i: str(i) for i in range(0, 51)},#month_dict,#{i: str(i) for i in range(0, 12)},
-                    value=0),
-    html.Div(id='output-container-slider'),
+    #html.Div(id='range-output-container-slider'),
+    # dcc.Slider(id='slider',
+    #                 min=0,
+    #                 max=12,
+    #                 step=1,
+    #                 marks= {i: str(i) for i in range(0, 51)},#month_dict,#{i: str(i) for i in range(0, 12)},
+    #                 value=0),
+    # html.Div(id='output-container-slider'),
     ],  style={'backgroundColor':'#CEFFBD',
                'font-weight': 'bold',
                'fontSize' : '17px',
@@ -423,11 +423,6 @@ def set_products_options(selected_matrix, selected_country):
         return ""
     else:
         return [{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()]
-    # return html.Div([dcc.Dropdown(id='year-selection',
-    #                  options=[{'label': i, 'value': i} for i in sample_df[REPORT_YEAR].unique()],
-    #                  disabled=selectable
-    # )
-    # ])
 
 
 
@@ -439,17 +434,12 @@ def set_products_options(selected_matrix, selected_country):
     Input('products-radio-val', 'value'),
     Input('availability-radio', 'value'),
     Input('year-radio', 'value'),
-    #Input('slider', 'value')
     Input('range-slider', 'value')
     ])
 def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
-    # if (month_val):
-    #     dff = dff[dff[MONTH] == month_val]
-    # elif month_val == 0:
-    #     dff = dff
     dff = _get_month_range(dff, month_val)
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     global download_df
@@ -521,19 +511,13 @@ def get_chart_choice(available_options):
     Input('chart-choice', 'value'),
     Input('availability-radio', 'value'),
     Input('year-radio', 'value'),
-    #Input('slider', 'value')
     Input('range-slider', 'value')
     ])
 def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val, month_val):
-    #sample_df = load_matrix(selected_matrix)
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
-    # if (month_val):
-    #     dff = dff[dff[MONTH] == month_val]
-    # elif month_val == 0:
-    #     dff = dff
     dff = _get_month_range(dff, month_val)
     dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
     dff = dff.reset_index()
