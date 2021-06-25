@@ -188,7 +188,28 @@ def create_prod_cons_file(download_df, download_cons_df):
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
     return result
-    
+
+
+def _get_month_range(dff, month_vals):
+    """Method to get only selected months from the dataframe.
+
+    Args:
+        dff (dataframe): Dataframe that contains data
+        month_vals (list): list that contains start and end values
+
+    Raises:
+        PreventUpdate: [description]
+
+    Returns:
+        [Dataframe]: The dataframe within the range given.
+    """
+    if month_vals == [0,0]:
+        return dff
+    else:
+        start_month, end_month = month_vals
+        print("start month is ", start_month, " and end month is ", end_month)
+        dff = dff[(dff[MONTH] >= int(start_month)) & (dff[MONTH] <= int(end_month))]
+        return dff
 
 
 
@@ -309,6 +330,15 @@ app.layout = html.Div([
     html.Hr(),
     html.Div([
     html.H5("Επιλογή Περιόδου"),
+    dcc.RangeSlider(
+        id='range-slider',
+        min=0,
+        max=12,
+        step=1,
+        marks=month_dict,
+        value=[0,0]
+    ),
+    html.Div(id='range-output-container-slider'),
     dcc.Slider(id='slider',
                     min=0,
                     max=12,
@@ -408,16 +438,18 @@ def set_products_options(selected_matrix, selected_country):
     Input('products-radio-val', 'value'),
     Input('availability-radio', 'value'),
     Input('year-radio', 'value'),
-    Input('slider', 'value')
+    #Input('slider', 'value')
+    Input('range-slider', 'value')
     ])
 def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
-    if (month_val):
-        dff = dff[dff[MONTH] == month_val]
-    elif month_val == 0:
-        dff = dff
+    # if (month_val):
+    #     dff = dff[dff[MONTH] == month_val]
+    # elif month_val == 0:
+    #     dff = dff
+    dff = _get_month_range(dff, month_val)
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     global download_df
     download_df = df_temp # remove this if it is not necessary
@@ -531,6 +563,19 @@ def update_slider(value):
         return "Αποτελέσματα για όλους τους μήνες."
     #return "Στοιχεία για τον {}o μήνα".format(value)
     return "Τα στοιχεία αφορούν τον μήνα: {}".format(month_dict[value])
+
+
+@app.callback(
+    Output('range-output-container-slider', 'children'),
+    [Input('range-slider', 'value')]
+)
+def update_range_slider(value):
+    if value == [0, 0]:
+        return value
+    x = []
+    for v in value:
+        x.append(int(v))
+    return x
 
 
 @app.callback(Output('download-link', 'children'),
