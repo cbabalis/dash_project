@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output
 from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import geopandas as gpd
 import plotly.express as px
 import urllib
 # following two lines for reading filenames from disk
@@ -110,7 +111,7 @@ geospatial_categories = ['κωδ. NUTS2', 'κωδ. NUTS3', 'Περιφέρειε
 product_names = ['Μεμονωμένα Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 vals_categories = ['Ποσότητα (σε τόνους)', 'Έτος Αναφοράς']
-chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
+chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας', 'Choropleth']
 month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβρουάριος', 3:'Μάρτιος', 4:'Απρίλιος', 5:'Μάιος', 6:'Ιούνιος', 7:'Ιούλιος', 8:'Αύγουστος', 9:'Σεπτέμβριος', 10:'Οκτώβριος', 11:'Νοέμβριος', 12:'Δεκέμβριος'}
 
 
@@ -146,9 +147,7 @@ def get_bar_figure(dff, x_col, y_col, col_sum):
     ))
     
     fig.update_traces( textposition='auto')
-
     fig.update_xaxes(title=x_col)
-
     fig.update_yaxes(title=y_col)
     
     return fig
@@ -163,6 +162,52 @@ def get_pie_figure(dff, x_col, col_sum, y_col):
         size=15,
         color="RebeccaPurple"
     ))
+    return fig
+
+
+def get_choropleth_figure(dff, x_col, col_sum, regions='', stats_to_show=''):
+    """Method to show a choropleth map with data.
+
+    Args:
+        dff (Dataframe): Data to be seen in map.
+        regions (dataframe, optional): dataframe of regions and geometry. Defaults to ''.
+        stats_to_show (str, optional): column with data. Defaults to ''.
+    """
+    # if regions is empty, get regions from disk.
+    regions_df = _get_regions(regions)
+    # join regions with incoming data.
+    gdf = _join_data_with_regions(regions_df, dff, col_sum)
+    # show everything on map.
+    fig = _create_choropleth_figure(gdf, col_sum)
+    return fig
+
+
+def _get_regions(regions_fpath):
+    if not regions_fpath:
+        regions_fpath = '/home/blaxeep/Downloads/74_regional_units.geojson'
+    gdf = gpd.read_file(regions_fpath)
+    pdb.set_trace()
+    gdf['name:el'] = gdf['name:el'].str.replace('Περιφερειακή Ενότητα ', '')
+    return gdf
+
+
+def _join_data_with_regions(regions_df, dff, col_sum):
+    gdf = pd.merge(regions_df, dff, how='left', left_on='name:el', right_on='Περ. Ενότητες (NUTS3)')
+    gdf[col_sum] = gdf[col_sum].fillna(0)
+    gdf[col_sum] = pd.to_numeric(gdf[col_sum])
+    gdf = gdf[gdf[col_sum] > 0]
+    return gdf
+
+
+def _create_choropleth_figure(gdf, stat_to_show):
+    fig = px.choropleth_mapbox(gdf,
+                               geojson=gdf['geometry'],
+                               locations=gdf.index,
+                               color=stat_to_show,
+                               center={"lat": 30.5517, "lon": 23.7073},
+                               mapbox_style="open-street-map",
+                               opacity=0.35,
+                               zoom=5)
     return fig
 
 
@@ -526,6 +571,8 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
         fig = get_bar_figure(dff, x_col, col_sum, y_col)
     elif chart_type == 'Γράφημα Πίτας':
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
+    elif chart_type == 'Choropleth':
+        fig = get_choropleth_figure(dff, x_col, col_sum)
 
     return fig
 
