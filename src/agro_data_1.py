@@ -95,6 +95,7 @@ sample_df = []
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 MONTH = 'Μήνας'
+REGIONAL_UNITS = 'Περ. Ενότητες (NUTS3)'
 # doc for image: https://community.plotly.com/t/background-image/21199/5
 #image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
 image = 'url("assets/ampeli-dash.png")'
@@ -186,28 +187,42 @@ def _get_regions(regions_fpath):
     if not regions_fpath:
         regions_fpath = '/home/blaxeep/Downloads/74_regional_units.geojson'
     gdf = gpd.read_file(regions_fpath)
-    pdb.set_trace()
     gdf['name:el'] = gdf['name:el'].str.replace('Περιφερειακή Ενότητα ', '')
     return gdf
 
 
+def _get_necessary_columns_only(dff, x_col, y_col, col_sum):
+    # check if regional units is in columns. If it is not, add it manually
+    if REGIONAL_UNITS == x_col:
+        dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
+    else:
+        dff = dff.groupby([x_col, y_col, REGIONAL_UNITS, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
+    dff = dff.reset_index()
+    return dff
+
+
 def _join_data_with_regions(regions_df, dff, col_sum):
-    gdf = pd.merge(regions_df, dff, how='left', left_on='name:el', right_on='Περ. Ενότητες (NUTS3)')
+    gdf = pd.merge(regions_df, dff, how='left', left_on='name:el', right_on=REGIONAL_UNITS)
     gdf[col_sum] = gdf[col_sum].fillna(0)
     gdf[col_sum] = pd.to_numeric(gdf[col_sum])
     gdf = gdf[gdf[col_sum] > 0]
     return gdf
 
 
-def _create_choropleth_figure(gdf, stat_to_show):
+def _create_choropleth_figure(gdf, stat_to_show, map_style="open-street-map"):
+    print(stat_to_show)
+    pdb.set_trace()
     fig = px.choropleth_mapbox(gdf,
                                geojson=gdf['geometry'],
                                locations=gdf.index,
                                color=stat_to_show,
                                center={"lat": 30.5517, "lon": 23.7073},
-                               mapbox_style="open-street-map",
+                               mapbox_style=map_style,
                                opacity=0.35,
+                               hover_name=REGIONAL_UNITS,
+                               #hover_data=stat_to_show,
                                zoom=5)
+    pdb.set_trace()
     return fig
 
 
@@ -564,14 +579,14 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
     dff = _get_month_range(dff, month_val)
-    dff = dff.groupby([x_col, y_col, MONTH])[col_sum].apply(lambda x : x.astype(float).sum())
-    dff = dff.reset_index()
+    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
     
     if chart_type == 'Γράφημα Στήλης':
         fig = get_bar_figure(dff, x_col, col_sum, y_col)
     elif chart_type == 'Γράφημα Πίτας':
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
     elif chart_type == 'Choropleth':
+        print(x_col)
         fig = get_choropleth_figure(dff, x_col, col_sum)
 
     return fig
