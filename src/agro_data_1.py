@@ -210,8 +210,6 @@ def _join_data_with_regions(regions_df, dff, col_sum):
 
 
 def _create_choropleth_figure(gdf, stat_to_show, map_style="open-street-map"):
-    print(stat_to_show)
-    pdb.set_trace()
     fig = px.choropleth_mapbox(gdf,
                                geojson=gdf['geometry'],
                                locations=gdf.index,
@@ -220,9 +218,7 @@ def _create_choropleth_figure(gdf, stat_to_show, map_style="open-street-map"):
                                mapbox_style=map_style,
                                opacity=0.35,
                                hover_name=REGIONAL_UNITS,
-                               #hover_data=stat_to_show,
                                zoom=5)
-    pdb.set_trace()
     return fig
 
 
