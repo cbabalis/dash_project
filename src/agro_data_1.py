@@ -115,6 +115,9 @@ vals_categories = ['Ποσότητα (σε τόνους)', 'Έτος Αναφο�
 chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας', 'Choropleth']
 month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβρουάριος', 3:'Μάρτιος', 4:'Απρίλιος', 5:'Μάιος', 6:'Ιούνιος', 7:'Ιούλιος', 8:'Αύγουστος', 9:'Σεπτέμβριος', 10:'Οκτώβριος', 11:'Νοέμβριος', 12:'Δεκέμβριος'}
 
+colorscales = px.colors.named_colorscales()
+basemaps = ["white-bg", "open-street-map", "carto-positron", "carto-darkmatter", "stamen-terrain", "stamen-toner", "stamen-watercolor"]
+
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
     if selected_country == '':
@@ -166,7 +169,7 @@ def get_pie_figure(dff, x_col, col_sum, y_col):
     return fig
 
 
-def get_choropleth_figure(dff, x_col, col_sum, regions='', stats_to_show=''):
+def get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap, regions='', stats_to_show=''):
     """Method to show a choropleth map with data.
 
     Args:
@@ -175,19 +178,20 @@ def get_choropleth_figure(dff, x_col, col_sum, regions='', stats_to_show=''):
         stats_to_show (str, optional): column with data. Defaults to ''.
     """
     # if regions is empty, get regions from disk.
-    regions_df = _get_regions(regions)
+    regions_df = _get_regions(regions, names_col='LEKTIKO')
     # join regions with incoming data.
-    gdf = _join_data_with_regions(regions_df, dff, col_sum)
+    gdf = _join_data_with_regions(regions_df, dff, col_sum, 'LEKTIKO')
     # show everything on map.
-    fig = _create_choropleth_figure(gdf, col_sum)
+    fig = _create_choropleth_figure(gdf, col_sum, colorscale, basemap)
     return fig
 
 
-def _get_regions(regions_fpath):
+def _get_regions(regions_fpath, names_col='name:el'):
     if not regions_fpath:
         regions_fpath = '/home/blaxeep/Downloads/74_regional_units_kas.geojson'
     gdf = gpd.read_file(regions_fpath)
-    gdf['name:el'] = gdf['name:el'].str.replace('Περιφερειακή Ενότητα ', '')
+    pdb.set_trace()
+    gdf[names_col] = gdf[names_col].str.replace('Περιφερειακή Ενότητα ', '')
     return gdf
 
 
@@ -201,21 +205,22 @@ def _get_necessary_columns_only(dff, x_col, y_col, col_sum):
     return dff
 
 
-def _join_data_with_regions(regions_df, dff, col_sum):
-    gdf = pd.merge(regions_df, dff, how='left', left_on='name:el', right_on=REGIONAL_UNITS)
+def _join_data_with_regions(regions_df, dff, col_sum, left_col):
+    gdf = pd.merge(regions_df, dff, how='left', left_on=left_col, right_on=REGIONAL_UNITS)
     gdf[col_sum] = gdf[col_sum].fillna(0)
     gdf[col_sum] = pd.to_numeric(gdf[col_sum])
     gdf = gdf[gdf[col_sum] > 0]
     return gdf
 
 
-def _create_choropleth_figure(gdf, stat_to_show, map_style="open-street-map"):
+def _create_choropleth_figure(gdf, stat_to_show, colorscale, basemap):
     fig = px.choropleth_mapbox(gdf,
                                geojson=gdf['geometry'],
                                locations=gdf.index,
                                color=stat_to_show,
+                               color_continuous_scale=colorscale,
                                center={"lat": 30.5517, "lon": 23.7073},
-                               mapbox_style=map_style,
+                               mapbox_style=basemap,
                                opacity=0.35,
                                hover_name=REGIONAL_UNITS,
                                zoom=5)
@@ -411,6 +416,40 @@ app.layout = html.Div([
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
+    html.Hr(),
+    # maps here
+    html.Div([
+            html.Div([
+                html.Label("ΔΙΑΘΕΣΙΜΕΣ ΧΡΩΜΑΤΙΚΕΣ ΕΠΙΛΟΓΕΣ",
+                    style={'font-weight': 'bold',
+                            'fontSize' : '15px',
+                            'margin-left':'auto',
+                            'margin-right':'auto',
+                            'display':'block'}),
+                dcc.Dropdown(id='availability-colors',
+                            options=[{"value": x, "label": x} 
+                                        for x in colorscales],
+                            value='viridis',
+                            style={"display": "block",
+                    "margin-left": "auto",
+                    "margin-right": "auto",
+                    # "width":"60%"
+                    }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
+            ], className='four columns'),
+            html.Div([
+                html.Label("ΔΙΑΘΕΣΙΜΑ ΥΠΟΒΑΘΡΑ ΧΑΡΤΩΝ",
+                        style={'font-weight': 'bold',
+                                'fontSize' : '15px'}),
+                dcc.Dropdown(id='availability-maps',
+                             options=[{"value":x, "label":x}
+                                      for x in basemaps],
+                             value='open-street-map',),
+            ], className='four columns'),
+        ], className='row',
+                 style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
+    html.Hr(),
+    dcc.Graph(id='map-fig'),
+    # end of maps
     html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
     html.Div(
@@ -582,9 +621,34 @@ def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type
     elif chart_type == 'Γράφημα Πίτας':
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
     elif chart_type == 'Choropleth':
-        print(x_col)
         fig = get_choropleth_figure(dff, x_col, col_sum)
 
+    return fig
+
+
+@app.callback(
+    Output('map-fig', 'figure'),
+    [Input('countries-radio', 'value'),
+    Input('cities-radio', 'value'),
+    Input('products-radio', 'value'),
+    Input('products-radio-val', 'value'),
+    Input('column-sum', 'value'),
+    Input('availability-radio', 'value'),
+    Input('year-radio', 'value'),
+    Input('range-slider', 'value'),
+    Input('availability-colors', 'value'),
+    Input('availability-maps', 'value'),
+    ])
+def set_display_map(x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matrix, year_val, month_val, colorscale, basemap):
+    """ Method to print map stats
+    """
+    dff = sample_df[sample_df[x_col].isin(x_col_vals)]
+    dff = dff[dff[y_col].isin(y_col_vals)]
+    if (year_val):
+        dff = dff[dff[REPORT_YEAR] == year_val]
+    dff = _get_month_range(dff, month_val)
+    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
+    fig = get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap)
     return fig
 
 
