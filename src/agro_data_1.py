@@ -188,7 +188,7 @@ def get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap, regions='', 
 
 def _get_regions(regions_fpath, names_col='name:el'):
     if not regions_fpath:
-        regions_fpath = '/home/blaxeep/workspace/dash_project/data/74_regional_units_kas.geojson' #'/home/blaxeep/Downloads/74_regional_units_kas.geojson'
+        regions_fpath = 'data/74_regional_units_kas.geojson' #'/home/blaxeep/Downloads/74_regional_units_kas.geojson'
     gdf = gpd.read_file(regions_fpath)
     gdf[names_col] = gdf[names_col].str.replace('Περιφερειακή Ενότητα ', '')
     return gdf
