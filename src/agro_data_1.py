@@ -3,7 +3,7 @@ import dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 import pandas as pd
@@ -117,6 +117,13 @@ month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβ
 
 colorscales = px.colors.named_colorscales()
 basemaps = ["white-bg", "open-street-map", "carto-positron", "carto-darkmatter", "stamen-terrain", "stamen-toner", "stamen-watercolor"]
+
+white_button_style = {'background-color': 'white',
+                      'color': 'black',
+                      #'height': '50px',
+                      #'width': '100px',
+                      'margin-top': '50px',
+                      'margin-left': '50px'}
 
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
@@ -376,7 +383,8 @@ app.layout = html.Div([
                 dcc.Dropdown(id='chart-choice',
                                 options=[{'label': k, 'value': k} for k in chart_types],
                                 value='Γράφημα Στήλης',
-                                )#labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
+                                ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
+                html.Button('Καταχώρηση Παραμέτρων', id='submit-val', n_clicks=0, style=white_button_style),
             ],style = {'width': '350px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
@@ -398,16 +406,7 @@ app.layout = html.Div([
         step=1,
         marks=month_dict,
         value=[0,0]
-    ),
-    #html.Div(id='range-output-container-slider'),
-    # dcc.Slider(id='slider',
-    #                 min=0,
-    #                 max=12,
-    #                 step=1,
-    #                 marks= {i: str(i) for i in range(0, 51)},#month_dict,#{i: str(i) for i in range(0, 12)},
-    #                 value=0),
-    # html.Div(id='output-container-slider'),
-    ],  style={'backgroundColor':'#CEFFBD',
+    ),],  style={'backgroundColor':'#CEFFBD',
                'font-weight': 'bold',
                'fontSize' : '17px',
                'color':'#111111'}),
@@ -442,12 +441,15 @@ app.layout = html.Div([
                 dcc.Dropdown(id='availability-maps',
                              options=[{"value":x, "label":x}
                                       for x in basemaps],
-                             value='carto-positron',),
+                             value='white-bg',),
+                html.Button('ΑΠΕΙΚΟΝΙΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ ΧΑΡΤΗ', id='submit-map', n_clicks=0, style=white_button_style),
             ], className='four columns'),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
     html.Hr(),
-    dcc.Graph(id='map-fig'),
+    html.Div(children=[
+        dcc.Graph(id='enhanced-map-fig'),
+    ], style = {'display': 'inline-block', 'height': '178%', 'width': '95%'}),
     # end of maps
     html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
@@ -522,15 +524,16 @@ def set_products_options(selected_matrix, selected_country):
 
 @app.callback(
     Output('display-selected-table', 'children'),
-    [Input('countries-radio', 'value'),
-    Input('cities-radio', 'value'),
-    Input('products-radio', 'value'),
-    Input('products-radio-val', 'value'),
-    Input('availability-radio', 'value'),
-    Input('year-radio', 'value'),
-    Input('range-slider', 'value')
+    [Input('submit-val', 'n_clicks')],
+    [State('countries-radio', 'value'),
+    State('cities-radio', 'value'),
+    State('products-radio', 'value'),
+    State('products-radio-val', 'value'),
+    State('availability-radio', 'value'),
+    State('year-radio', 'value'),
+    State('range-slider', 'value')
     ])
-def set_display_table(selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
+def set_display_table(n_clicks, selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
@@ -599,17 +602,18 @@ def get_chart_choice(available_options):
 
 @app.callback(
     Output('indicator-graphic-multi-sum', 'figure'),
-    [Input('countries-radio', 'value'),
-    Input('cities-radio', 'value'),
-    Input('products-radio', 'value'),
-    Input('products-radio-val', 'value'),
-    Input('column-sum', 'value'),
-    Input('chart-choice', 'value'),
-    Input('availability-radio', 'value'),
-    Input('year-radio', 'value'),
-    Input('range-slider', 'value')
+    [Input('submit-val', 'n_clicks')],
+    [State('countries-radio', 'value'),
+    State('cities-radio', 'value'),
+    State('products-radio', 'value'),
+    State('products-radio-val', 'value'),
+    State('column-sum', 'value'),
+    State('chart-choice', 'value'),
+    State('availability-radio', 'value'),
+    State('year-radio', 'value'),
+    State('range-slider', 'value')
     ])
-def set_display_figure(x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val, month_val):
+def set_display_figure(n_clicks, x_col, x_col_vals, y_col, y_col_vals, col_sum, chart_type, selected_matrix, year_val, month_val):
     dff = sample_df[sample_df[x_col].isin(x_col_vals)]
     dff = dff[dff[y_col].isin(y_col_vals)]
     if (year_val):
@@ -651,6 +655,30 @@ def set_display_map(x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matr
     dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
     fig = get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap)
     return fig
+
+
+@app.callback(
+    Output('enhanced-map-fig', 'figure'),
+    [Input('submit-map', 'n_clicks')],
+    [State('availability-colors', 'value'),
+    State('availability-maps', 'value'),
+    State('countries-radio', 'value'),
+    #Input('cities-radio', 'value'),
+    State('products-radio', 'value'),
+    #Input('products-radio-val', 'value'),
+    State('column-sum', 'value'),
+    #Input('availability-radio', 'value'),
+    #Input('year-radio', 'value'),
+    #Input('range-slider', 'value'),
+    ])
+def set_enhanced_display_map(n_clicks, colorscale, basemap, x_col, y_col, col_sum):
+    """ Method to print map stats
+    """
+    dff = download_df
+    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
+    fig = get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap)
+    return fig
+
 
 
 @app.callback(Output('output-provider', 'children'),
