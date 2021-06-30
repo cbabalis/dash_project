@@ -178,9 +178,9 @@ def get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap, regions='', 
         stats_to_show (str, optional): column with data. Defaults to ''.
     """
     # if regions is empty, get regions from disk.
-    regions_df = _get_regions(regions, names_col='LEKTIKO')
+    regions_df = _get_regions(regions, names_col='Regional_U')
     # join regions with incoming data.
-    gdf = _join_data_with_regions(regions_df, dff, col_sum, 'LEKTIKO')
+    gdf = _join_data_with_regions(regions_df, dff, col_sum, 'Regional_U')
     # show everything on map.
     fig = _create_choropleth_figure(gdf, col_sum, colorscale, basemap)
     return fig
@@ -188,9 +188,8 @@ def get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap, regions='', 
 
 def _get_regions(regions_fpath, names_col='name:el'):
     if not regions_fpath:
-        regions_fpath = '/home/blaxeep/Downloads/74_regional_units_kas.geojson'
+        regions_fpath = '/home/blaxeep/workspace/dash_project/data/74_regional_units_kas.geojson' #'/home/blaxeep/Downloads/74_regional_units_kas.geojson'
     gdf = gpd.read_file(regions_fpath)
-    pdb.set_trace()
     gdf[names_col] = gdf[names_col].str.replace('Περιφερειακή Ενότητα ', '')
     return gdf
 
@@ -429,7 +428,7 @@ app.layout = html.Div([
                 dcc.Dropdown(id='availability-colors',
                             options=[{"value": x, "label": x} 
                                         for x in colorscales],
-                            value='viridis',
+                            value='speed',
                             style={"display": "block",
                     "margin-left": "auto",
                     "margin-right": "auto",
@@ -443,7 +442,7 @@ app.layout = html.Div([
                 dcc.Dropdown(id='availability-maps',
                              options=[{"value":x, "label":x}
                                       for x in basemaps],
-                             value='open-street-map',),
+                             value='carto-positron',),
             ], className='four columns'),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
@@ -537,6 +536,8 @@ def set_display_table(selected_country, selected_city, selected_prod_cat, select
         dff = dff[dff[REPORT_YEAR] == year_val]
     dff = _get_month_range(dff, month_val)
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
+    # reduce decimals to two only.
+    df_temp = df_temp.round(2)
     global download_df
     download_df = df_temp # remove this if it is not necessary
     # following two lines are for consumptions corresponding file
