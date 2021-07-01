@@ -213,7 +213,7 @@ def _get_regions(regions_fpath, names_col='name:el'):
 def _get_necessary_columns_only(dff, x_col, y_col, col_sum):
     # check if regional units is in columns. If it is not, add it manually
     if REGIONAL_UNITS == x_col:
-        dff = dff.groupby([x_col, y_col])[col_sum].apply(lambda x : x.astype(float).sum())
+        dff = dff.groupby([x_col])[col_sum].apply(lambda x : x.astype(float).sum())
     else:
         dff = dff.groupby([x_col, y_col, REGIONAL_UNITS])[col_sum].apply(lambda x : x.astype(float).sum())
     dff = dff.reset_index()
@@ -238,6 +238,7 @@ def _create_choropleth_figure(gdf, stat_to_show, colorscale, basemap):
                                mapbox_style=basemap,
                                opacity=0.35,
                                hover_name=REGIONAL_UNITS,
+                               height=700,
                                zoom=5)
     return fig
 
