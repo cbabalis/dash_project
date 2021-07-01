@@ -17,6 +17,9 @@ from datetime import datetime
 from dash_extensions import Download
 from dash_extensions.snippets import send_data_frame
 import os
+import plotly.graph_objects as go
+import time
+
 
 
 import pdb
@@ -185,17 +188,23 @@ def get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap, regions='', 
         stats_to_show (str, optional): column with data. Defaults to ''.
     """
     # if regions is empty, get regions from disk.
+    start_time = time.time()
     regions_df = _get_regions(regions, names_col='Regional_U')
+    print("regions df ended in --- %s seconds ---" % (time.time() - start_time))
     # join regions with incoming data.
+    start_time = time.time()
     gdf = _join_data_with_regions(regions_df, dff, col_sum, 'Regional_U')
+    print("join data with regions ended in --- %s seconds ---" % (time.time() - start_time))
     # show everything on map.
+    start_time = time.time()
     fig = _create_choropleth_figure(gdf, col_sum, colorscale, basemap)
+    print("figure ended in --- %s seconds ---" % (time.time() - start_time))
     return fig
 
 
 def _get_regions(regions_fpath, names_col='name:el'):
     if not regions_fpath:
-        regions_fpath = 'data/74_regional_units_kas.geojson' #'/home/blaxeep/Downloads/74_regional_units_kas.geojson'
+        regions_fpath = 'data/74_regional_units_smooth.geojson' #'/home/blaxeep/Downloads/74_regional_units_kas.geojson'
     gdf = gpd.read_file(regions_fpath)
     gdf[names_col] = gdf[names_col].str.replace('Περιφερειακή Ενότητα ', '')
     return gdf
@@ -225,12 +234,19 @@ def _create_choropleth_figure(gdf, stat_to_show, colorscale, basemap):
                                locations=gdf.index,
                                color=stat_to_show,
                                color_continuous_scale=colorscale,
-                               center={"lat": 30.5517, "lon": 23.7073},
+                               center={"lat": 40.5517, "lon": 23.7073},
                                mapbox_style=basemap,
                                opacity=0.35,
                                hover_name=REGIONAL_UNITS,
                                zoom=5)
     return fig
+
+
+def _create_choropleth_figure_go(gdf, stat_to_show, colorscale, basemap):
+    fig = go.Figure(data=go.Choropleth(
+        locations = gdf['geometry']
+    ))
+    pass
 
 
 def create_prod_cons_file(download_df, download_cons_df):
@@ -278,6 +294,16 @@ def _get_month_range(dff, month_vals):
         start_month, end_month = month_vals
         dff = dff[(dff[MONTH] >= int(start_month)) & (dff[MONTH] <= int(end_month))]
         return dff
+
+
+def _get_filtered_dff(sample_df, x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matrix, year_val, month_val):
+    dff = sample_df[sample_df[x_col].isin(x_col_vals)]
+    dff = dff[dff[y_col].isin(y_col_vals)]
+    if (year_val):
+        dff = dff[dff[REPORT_YEAR] == year_val]
+    dff = _get_month_range(dff, month_val)
+    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
+    return dff
 
 
 
@@ -448,7 +474,7 @@ app.layout = html.Div([
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
     html.Hr(),
     html.Div(children=[
-        dcc.Graph(id='enhanced-map-fig'),
+        dcc.Graph(id='map-fig'),
     ], style = {'display': 'inline-block', 'height': '178%', 'width': '95%'}),
     # end of maps
     html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
@@ -535,8 +561,8 @@ def set_products_options(selected_matrix, selected_country):
     ])
 def set_display_table(n_clicks, selected_country, selected_city, selected_prod_cat, selected_prod_val, selected_matrix, year_val, month_val):
     dff = get_col_rows_data(selected_country, selected_city, sample_df)
-    if (year_val):
-        dff = dff[dff[REPORT_YEAR] == year_val]
+    #if (year_val):
+    #    dff = dff[dff[REPORT_YEAR] == year_val]
     dff = _get_month_range(dff, month_val)
     df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
     # reduce decimals to two only.
@@ -619,40 +645,34 @@ def set_display_figure(n_clicks, x_col, x_col_vals, y_col, y_col_vals, col_sum, 
     if (year_val):
         dff = dff[dff[REPORT_YEAR] == year_val]
     dff = _get_month_range(dff, month_val)
-    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
+    #dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
     
     if chart_type == 'Γράφημα Στήλης':
         fig = get_bar_figure(dff, x_col, col_sum, y_col)
     elif chart_type == 'Γράφημα Πίτας':
         fig = get_pie_figure(dff, x_col, col_sum, y_col)
-    elif chart_type == 'Choropleth':
-        fig = get_choropleth_figure(dff, x_col, col_sum)
 
     return fig
 
 
 @app.callback(
     Output('map-fig', 'figure'),
-    [Input('countries-radio', 'value'),
-    Input('cities-radio', 'value'),
-    Input('products-radio', 'value'),
-    Input('products-radio-val', 'value'),
-    Input('column-sum', 'value'),
-    Input('availability-radio', 'value'),
-    Input('year-radio', 'value'),
-    Input('range-slider', 'value'),
-    Input('availability-colors', 'value'),
-    Input('availability-maps', 'value'),
+    [Input('submit-map', 'n_clicks')],
+    [State('countries-radio', 'value'),
+    State('cities-radio', 'value'),
+    State('products-radio', 'value'),
+    State('products-radio-val', 'value'),
+    State('column-sum', 'value'),
+    State('availability-radio', 'value'),
+    State('year-radio', 'value'),
+    State('range-slider', 'value'),
+    State('availability-colors', 'value'),
+    State('availability-maps', 'value'),
     ])
-def set_display_map(x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matrix, year_val, month_val, colorscale, basemap):
+def set_display_map(n_clicks, x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matrix, year_val, month_val, colorscale, basemap):
     """ Method to print map stats
     """
-    dff = sample_df[sample_df[x_col].isin(x_col_vals)]
-    dff = dff[dff[y_col].isin(y_col_vals)]
-    if (year_val):
-        dff = dff[dff[REPORT_YEAR] == year_val]
-    dff = _get_month_range(dff, month_val)
-    dff = _get_necessary_columns_only(dff, x_col, y_col, col_sum)
+    dff = _get_filtered_dff(sample_df, x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matrix, year_val, month_val)
     fig = get_choropleth_figure(dff, x_col, col_sum, colorscale, basemap)
     return fig
 
@@ -663,13 +683,8 @@ def set_display_map(x_col, x_col_vals, y_col, y_col_vals, col_sum, selected_matr
     [State('availability-colors', 'value'),
     State('availability-maps', 'value'),
     State('countries-radio', 'value'),
-    #Input('cities-radio', 'value'),
     State('products-radio', 'value'),
-    #Input('products-radio-val', 'value'),
     State('column-sum', 'value'),
-    #Input('availability-radio', 'value'),
-    #Input('year-radio', 'value'),
-    #Input('range-slider', 'value'),
     ])
 def set_enhanced_display_map(n_clicks, colorscale, basemap, x_col, y_col, col_sum):
     """ Method to print map stats
