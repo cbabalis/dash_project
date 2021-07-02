@@ -240,8 +240,8 @@ def _create_choropleth_figure(gdf, stat_to_show, colorscale, basemap):
                                mapbox_style=basemap,
                                #opacity=0.35,
                                hover_name=REGIONAL_UNITS,
-                               height=700,
-                               zoom=5)
+                               height=800,
+                               zoom=6)
     return fig
 
 
