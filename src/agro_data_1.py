@@ -19,6 +19,7 @@ from dash_extensions.snippets import send_data_frame
 import os
 import plotly.graph_objects as go
 import time
+import numpy as np
 
 
 
@@ -212,21 +213,26 @@ def _get_regions(regions_fpath, names_col='name:el'):
 
 def _get_necessary_columns_only(dff, x_col, y_col, col_sum):
     # check if regional units is in columns. If it is not, add it manually
-    #pdb.set_trace()
+    dff[col_sum] = dff[col_sum].astype(np.float)
     if REGIONAL_UNITS == x_col:
-        dff = dff.groupby([x_col])[col_sum].apply(lambda x : x.astype(float).sum())
+        choro_df = dff.groupby([x_col], as_index=False).sum()
+        return choro_df[[x_col, col_sum]]
     else:
-        dff = dff.groupby([x_col, REGIONAL_UNITS])[col_sum].apply(lambda x : x.astype(float).sum())
-    #pdb.set_trace()
-    dff = dff.reset_index()
-    return dff
+        choro_df = dff.groupby([x_col, REGIONAL_UNITS], as_index=False).sum()
+        return choro_df[[x_col, REGIONAL_UNITS, col_sum]]
+    # if REGIONAL_UNITS == x_col:
+    #     dff = dff.groupby([x_col])[col_sum].apply(lambda x : x.astype(float).sum())
+    # else:
+    #     dff = dff.groupby([x_col, REGIONAL_UNITS])[col_sum].apply(lambda x : x.astype(float).sum())
+    # dff = dff.reset_index()
+    # return dff
 
 
 def _join_data_with_regions(regions_df, dff, col_sum, left_col):
     gdf = pd.merge(regions_df, dff, how='left', left_on=left_col, right_on=REGIONAL_UNITS)
     gdf[col_sum] = gdf[col_sum].fillna(0)
     gdf[col_sum] = pd.to_numeric(gdf[col_sum])
-    gdf = gdf[gdf[col_sum] > 0]
+    #gdf = gdf[gdf[col_sum] > 0]
     return gdf
 
 
@@ -717,7 +723,6 @@ def update_output(submit_n_clicks):
 def update_slider(value):
     if value == 0:
         return "Αποτελέσματα για όλους τους μήνες."
-    #return "Στοιχεία για τον {}o μήνα".format(value)
     return "Τα στοιχεία αφορούν τον μήνα: {}".format(month_dict[value])
 
 
