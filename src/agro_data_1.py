@@ -78,10 +78,14 @@ def refine_df(df):
     return df
 
 
-def load_matrix(selected_matrix):
-    matrix_filepath = my_path + selected_matrix
+def load_matrix(selected_matrix, pre_path=''):
+    if not pre_path:
+        matrix_filepath = my_path + selected_matrix
+    else:
+        matrix_filepath = pre_path + selected_matrix
     sample_df = pd.read_csv(matrix_filepath, delimiter='\t')
     sample_df = refine_df(sample_df)
+    print("full loaded matrix path is ", matrix_filepath)
     return sample_df
 
 
@@ -140,13 +144,13 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
     return df_temp
 
 
-def _get_corresponding_cons_df(selected_country, selected_city):
-    if selected_country == '':
-        df_temp = load_matrix('Εβδομαδιαία_Ζήτηση_Νωπών_babis.csv')
-    elif (isinstance(selected_city, str)):
-        df_temp = sample_df[sample_df[selected_country] == selected_city]
-    else:
-        df_temp = sample_df[sample_df[selected_country].isin(selected_city)]
+def _get_corresponding_cons_df(selected_country, selected_city, selected_prod_cat, selected_prod_val, month_val):
+    df_temp = load_matrix('Εβδομαδιαία_Ζήτηση_Νωπών_babis.csv', 'data/')
+    dff = get_col_rows_data(selected_country, selected_city, df_temp)
+    dff = _get_month_range(dff, month_val)
+    df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
+    # reduce decimals to two only.
+    df_temp = df_temp.round(2)
     return df_temp
 
 
@@ -220,12 +224,6 @@ def _get_necessary_columns_only(dff, x_col, y_col, col_sum):
     else:
         choro_df = dff.groupby([x_col, REGIONAL_UNITS], as_index=False).sum()
         return choro_df[[x_col, REGIONAL_UNITS, col_sum]]
-    # if REGIONAL_UNITS == x_col:
-    #     dff = dff.groupby([x_col])[col_sum].apply(lambda x : x.astype(float).sum())
-    # else:
-    #     dff = dff.groupby([x_col, REGIONAL_UNITS])[col_sum].apply(lambda x : x.astype(float).sum())
-    # dff = dff.reset_index()
-    # return dff
 
 
 def _join_data_with_regions(regions_df, dff, col_sum, left_col):
@@ -283,9 +281,10 @@ def create_prod_cons_file(download_df, download_cons_df, quantity='Ποσότη�
     # balance production values to consumption (they should be equal)
     balance_quantities(prods, cons, col=quantity)
     # make an inner join because cons has more regional units
-    result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
+    result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='left', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
+    result['Κατανάλωση'] = result['Κατανάλωση'].fillna(0)
     return result
 
 
@@ -304,6 +303,7 @@ def balance_quantities(prods, cons, col):
     # apply balance factor to the productions.
     prods[col] = prods[col] * balance_factor
     print("balance factor is ", balance_factor)
+    print("production of all is ", prods_sum, " while consumption is ", cons_sum)
 
 
 def _get_month_range(dff, month_vals):
@@ -604,7 +604,7 @@ def set_display_table(n_clicks, selected_country, selected_city, selected_prod_c
     download_df = df_temp # remove this if it is not necessary
     # following two lines are for consumptions corresponding file
     global download_cons_df
-    download_cons_df = _get_corresponding_cons_df(selected_prod_cat, selected_prod_val)
+    download_cons_df = _get_corresponding_cons_df(selected_country, selected_city, selected_prod_cat, selected_prod_val, month_val)
     return html.Div([
         dash_table.DataTable(
             id='main-table',
@@ -773,7 +773,6 @@ def save_df_conf_to_disk(btn_click):
     if 'csv_to_disk' in changed_id:
         custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
         #download_df.to_csv(fpath, sep='\t')
-        pdb.set_trace()
         custom_prod_cons.to_csv(fpath, sep='\t', index=False)
         msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων με όνομα ' + results_name
     else:
