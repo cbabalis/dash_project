@@ -258,7 +258,7 @@ def _create_choropleth_figure_go(gdf, stat_to_show, colorscale, basemap):
     pass
 
 
-def create_prod_cons_file(download_df, download_cons_df):
+def create_prod_cons_file(download_df, download_cons_df, quantity='Ποσότητα (σε τόνους)'):
     """Method to create a productions-consumptions dataframe file
     from the user's given custom parameters.
 
@@ -273,8 +273,8 @@ def create_prod_cons_file(download_df, download_cons_df):
         [Dataframe]: A dataframe with prod-cons data.
     """
     # sum by amounts of products by reguinal units
-    prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
-    cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])['Ποσότητα (σε τόνους)'].sum().reset_index()
+    prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])[quantity].sum().reset_index()
+    cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])[quantity].sum().reset_index()
     # make an inner join because cons has more regional units
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
