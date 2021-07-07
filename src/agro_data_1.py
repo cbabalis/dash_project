@@ -146,12 +146,9 @@ def get_col_rows_data(selected_country, selected_city, sample_df):
 
 def _get_corresponding_cons_df(selected_country, selected_city, selected_prod_cat, selected_prod_val, month_val):
     df_temp = load_matrix('Εβδομαδιαία_Ζήτηση_Νωπών_babis.csv', 'data/')
-    dff = get_col_rows_data(selected_country, selected_city, df_temp)
+    dff = get_col_rows_data(selected_prod_cat, selected_prod_val, df_temp)
     dff = _get_month_range(dff, month_val)
-    df_temp = get_col_rows_data(selected_prod_cat, selected_prod_val, dff)
-    # reduce decimals to two only.
-    df_temp = df_temp.round(2)
-    return df_temp
+    return dff
 
 
 def get_bar_figure(dff, x_col, y_col, col_sum):
