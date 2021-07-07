@@ -265,6 +265,7 @@ def create_prod_cons_file(download_df, download_cons_df, quantity='Ποσότη�
     Args:
         download_df (Dataframe): Custom productions file
         download_cons_df (Dataframe): Custom consumptions file
+        quantity (optional, str): Name of the column that contains the quantity
 
     Raises:
         PreventUpdate: [description]
@@ -273,13 +274,36 @@ def create_prod_cons_file(download_df, download_cons_df, quantity='Ποσότη�
         [Dataframe]: A dataframe with prod-cons data.
     """
     # sum by amounts of products by reguinal units
-    prods = download_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])[quantity].sum().reset_index()
-    cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', 'Περ. Ενότητες (NUTS3)'])[quantity].sum().reset_index()
+    download_df[quantity] = download_df[quantity].astype(np.float)
+    prods = download_df.groupby(['Περιφέρειες (NUTS2)', REGIONAL_UNITS], as_index=False).sum()
+    prods = prods[['Περιφέρειες (NUTS2)', REGIONAL_UNITS, quantity]]
+    download_cons_df[quantity] = download_cons_df[quantity].astype(np.float)
+    cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', REGIONAL_UNITS], as_index=False).sum()
+    cons = cons[['Περιφέρειες (NUTS2)', REGIONAL_UNITS, quantity]]
+    # balance production values to consumption (they should be equal)
+    balance_quantities(prods, cons, col=quantity)
     # make an inner join because cons has more regional units
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='inner', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
     result.columns = ['ΠΕΡΙΦΕΡΕΙΑ', 'ΠΕΡΙΦΕΡΕΙΑΚΕΣ ΕΝΟΤΗΤΕΣ', 'Παραγωγές (tn)', 'Κατανάλωση']
     return result
+
+
+def balance_quantities(prods, cons, col):
+    """Method to balance the total sums of quantities for the
+    productions and the consumptions respectively
+
+    Args:
+        prods Dataframe): Dataframe of productions
+        cons (Dataframe): Dataframe of consumptions
+    """
+    # sum up the productions and the consumptions respectively
+    prods_sum = prods[col].sum()
+    cons_sum = cons[col].sum()
+    balance_factor = cons_sum / prods_sum
+    # apply balance factor to the productions.
+    prods[col] = prods[col] * balance_factor
+    print("balance factor is ", balance_factor)
 
 
 def _get_month_range(dff, month_vals):
@@ -749,6 +773,7 @@ def save_df_conf_to_disk(btn_click):
     if 'csv_to_disk' in changed_id:
         custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
         #download_df.to_csv(fpath, sep='\t')
+        pdb.set_trace()
         custom_prod_cons.to_csv(fpath, sep='\t', index=False)
         msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων με όνομα ' + results_name
     else:
