@@ -97,9 +97,6 @@ def _create_results_name():
 
 
 sample_df = []
-# sample_df = pd.read_csv('data/Table_qikw_BABIS.csv', delimiter='\t')
-# sample_df = sample_df.fillna(0)
-# sample_df = convert_weeks_to_units(sample_df)
 PROD_AVAILABILITY = 'Διάθεση Αγροτικών Προϊόντων'
 REPORT_YEAR = 'Έτος αναφοράς'
 MONTH = 'Μήνας'
@@ -275,8 +272,9 @@ def create_prod_cons_file(download_df, download_cons_df, quantity='Ποσότη�
     download_cons_df[quantity] = download_cons_df[quantity].astype(np.float)
     cons = download_cons_df.groupby(['Περιφέρειες (NUTS2)', REGIONAL_UNITS], as_index=False).sum()
     cons = cons[['Περιφέρειες (NUTS2)', REGIONAL_UNITS, quantity]]
+    # Following two lines are implemented in OD-dash. depreceated.
     # balance production values to consumption (they should be equal)
-    balance_quantities(prods, cons, col=quantity)
+    # balance_quantities(prods, cons, col=quantity)
     # make an inner join because cons has more regional units
     result = prods.merge(cons, on='Περ. Ενότητες (NUTS3)', how='left', suffixes=('_prod', '_cons'))
     del result['Περιφέρειες (NUTS2)_cons']
@@ -292,6 +290,7 @@ def balance_quantities(prods, cons, col):
     Args:
         prods Dataframe): Dataframe of productions
         cons (Dataframe): Dataframe of consumptions
+    @deprecated!
     """
     # sum up the productions and the consumptions respectively
     prods_sum = prods[col].sum()
