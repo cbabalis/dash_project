@@ -103,7 +103,9 @@ MONTH = 'Μήνας'
 REGIONAL_UNITS = 'Περ. Ενότητες (NUTS3)'
 # doc for image: https://community.plotly.com/t/background-image/21199/5
 #image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
-image = 'url("assets/ampeli-dash.png")'
+image_orig = 'url("assets/ampeli-dash.png")'
+image = 'url("assets/canada-crops-banner.jpg")'
+
 results_path = '../od-dash/data/prod_cons/'
 download_df = []
 
@@ -341,26 +343,31 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
-    html.Hr(),
-    # text here
     html.Div([
-    dcc.Markdown(matrix_text),
-    dcc.ConfirmDialogProvider(children=html.Button(
-            'Οδηγίες Χρήσης',
-            style={'float': 'right','margin': 'auto'}
+        html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
+        #html.Hr(),
+        # text here
+        html.Div([
+        dcc.Markdown(matrix_text),
+        dcc.ConfirmDialogProvider(children=html.Button(
+                'Οδηγίες Χρήσης',
+                #style={'float': 'right','margin': 'auto'}
+                style=white_button_style
+            ),
+            id='danger-danger-provider',
+            message=help_text,
         ),
-        id='danger-danger-provider',
-        message=help_text,
-    ),
-    html.Div(id='output-provider')
-    ],
-             className='row'),
+        html.Div(id='output-provider')
+        ],
+                className='row'),
+    ],style = {'background-image':image_orig,
+                                    'background-size':'cover',
+                                    'background-position':'right'}),
     # filters here
     html.Div([
         html.Div([
             html.Div([
-                html.Label("ΔΙΑΘΕΣΙΜΑ ΣΥΝΟΛΑ ΔΕΔΟΜΕΝΩΝ",
+                html.Label("ΔΙΑΘΕΣΙΜΑ ΔΕΔΟΜΕΝΑ",
                     style={'font-weight': 'bold',
                             'fontSize' : '17px',
                             'margin-left':'auto',
@@ -409,51 +416,52 @@ app.layout = html.Div([
                                             'padding-left' : '50px',
                                             'display': 'inline-block',
                                             }),
-            # product filters
-            html.Div([
-                html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ"),
-                html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
-                        style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
-                dcc.Dropdown(id='products-radio',
-                                options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
-                                value='',
-                                placeholder='Βήμα 4ο: Επιλέξτε Επίπεδο Ανάλυσης Προϊόντος',),
-                # comment title here
-                #html.Label("ΠΡΟΪΟΝ",
-                #        style={'font-weight': 'bold',
-                #                'fontSize' : '17px'}),
-                # end of comments.
-                dcc.Dropdown(id='products-radio-val',
-                             multi=True,
-                             options=[],
-                             placeholder='Βήμα 6ο: Επιλέξτε Προϊόν ή Κατηγορία',
-                             ),],
-                                        style = {'width': '440px',
-                                            'fontSize' : '15px',
-                                            'padding-left' : '50px',
-                                            'display': 'inline-block'}),
-            
-            # values filters
-            html.Div([
-                html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
-                        style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
-                dcc.Dropdown(id='column-sum',
-                                options=[{'label': k, 'value': k} for k in vals_categories],
-                                value=''),
-                html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
-                        style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
-                dcc.Dropdown(id='chart-choice',
-                                options=[{'label': k, 'value': k} for k in chart_types],
-                                value='Γράφημα Στήλης',
-                                ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
-            ],style = {'width': '350px',
-                                            'fontSize' : '15px',
-                                            'padding-left' : '50px',
-                                            'display': 'inline-block'}),
-        ],className='row'),
+                # product filters
+                html.Div([
+                    html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ"),
+                    html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
+                            style={'font-weight': 'bold',
+                                    'fontSize' : '17px'}),
+                    dcc.Dropdown(id='products-radio',
+                                    options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
+                                    value='',
+                                    placeholder='Βήμα 4ο: Επιλέξτε Επίπεδο Ανάλυσης Προϊόντος',),
+                    # comment title here
+                    #html.Label("ΠΡΟΪΟΝ",
+                    #        style={'font-weight': 'bold',
+                    #                'fontSize' : '17px'}),
+                    # end of comments.
+                    dcc.Dropdown(id='products-radio-val',
+                                multi=True,
+                                options=[],
+                                placeholder='Βήμα 6ο: Επιλέξτε Προϊόν ή Κατηγορία',
+                                ),],
+                                            style = {'width': '440px',
+                                                'fontSize' : '15px',
+                                                'padding-left' : '50px',
+                                                'display': 'inline-block'}),
+                # values filters
+                html.Div([
+                    html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ"),
+                    html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
+                            style={'font-weight': 'bold',
+                                    'fontSize' : '17px'}),
+                    dcc.Dropdown(id='chart-choice',
+                                    options=[{'label': k, 'value': k} for k in chart_types],
+                                    value='Γράφημα Στήλης',
+                                    ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
+                    html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
+                            style={'font-weight': 'bold',
+                                    'fontSize' : '17px'}),
+                    dcc.Dropdown(id='column-sum',
+                                    options=[{'label': k, 'value': k} for k in vals_categories],
+                                    value=''),
+                    ],style = {'width': '350px',
+                                                'fontSize' : '15px',
+                                                'padding-left' : '50px',
+                                                'display': 'inline-block'}),
+        ],className='row',
+        style = {'display' : 'flex'}),
     ],style = {'background-image':image,
                                     'background-size':'cover',
                                     'background-position':'right'}),
@@ -476,7 +484,7 @@ app.layout = html.Div([
     # table here
     html.Hr(),
     html.Div(id='display-selected-table',  className='tableDiv'),
-    html.Hr(),    
+    html.Hr(),
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
