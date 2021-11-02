@@ -117,7 +117,7 @@ geospatial_categories = ['κωδ. NUTS2', 'κωδ. NUTS3', 'Περιφέρειε
 product_names = ['Μεμονωμένα Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 product_categories = ['Αγροτικά Προϊόντα', 'Κατηγορίες Αγροτικών Προϊόντων']
 vals_categories = ['Ποσότητα (σε τόνους)', 'Έτος Αναφοράς']
-chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας', 'Choropleth']
+chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
 month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβρουάριος', 3:'Μάρτιος', 4:'Απρίλιος', 5:'Μάιος', 6:'Ιούνιος', 7:'Ιούλιος', 8:'Αύγουστος', 9:'Σεπτέμβριος', 10:'Οκτώβριος', 11:'Νοέμβριος', 12:'Δεκέμβριος'}
 
 colorscales = px.colors.named_colorscales()
@@ -375,7 +375,7 @@ app.layout = html.Div([
                     }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
             ], className='six columns'),
             html.Div([
-                html.Label("ΧΡΟΝΙΚΗ ΠΕΡΙΟΔΟΣ",
+                html.Label("ΕΠΙΛΟΓΗ ΧΡΟΝΙΚΗΣ ΠΕΡΙΟΔΟΥ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
                 dcc.Dropdown(id='year-radio',
@@ -442,14 +442,13 @@ app.layout = html.Div([
                 dcc.Dropdown(id='column-sum',
                                 options=[{'label': k, 'value': k} for k in vals_categories],
                                 value=''),
-                html.Label("ΕΠΙΛΟΓΗ ΓΡΑΦΗΜΑΤΟΣ",
+                html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px'}),
                 dcc.Dropdown(id='chart-choice',
                                 options=[{'label': k, 'value': k} for k in chart_types],
                                 value='Γράφημα Στήλης',
                                 ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
-                html.Button('Καταχώρηση Παραμέτρων', id='submit-val', n_clicks=0, style=white_button_style),
             ],style = {'width': '350px',
                                             'fontSize' : '15px',
                                             'padding-left' : '50px',
@@ -458,10 +457,7 @@ app.layout = html.Div([
     ],style = {'background-image':image,
                                     'background-size':'cover',
                                     'background-position':'right'}),
-    # table here
-    html.Hr(),
-    html.Div(id='display-selected-table',  className='tableDiv'),
-    html.Hr(),
+    # time slider here
     html.Div([
     html.H5("Επιλογή Περιόδου"),
     dcc.RangeSlider(
@@ -475,7 +471,12 @@ app.layout = html.Div([
                'font-weight': 'bold',
                'fontSize' : '17px',
                'color':'#111111'}),
-    
+    # add button for parameters input here
+    html.Button('ΥΠΟΛΟΓΙΣΜΟΣ ΚΑΙ ΠΡΟΒΟΛΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ', id='submit-val', n_clicks=0, style=white_button_style),
+    # table here
+    html.Hr(),
+    html.Div(id='display-selected-table',  className='tableDiv'),
+    html.Hr(),    
     # graphs here
     html.Hr(),
     dcc.Graph(id='indicator-graphic-multi-sum'),
