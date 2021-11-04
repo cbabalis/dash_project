@@ -493,6 +493,7 @@ app.layout = html.Div([
                         ],style = {#'width': '350px',
                                     'fontSize' : '15px',
                                     'padding-left' : '50px',
+                                    'padding-right' : '50px',
                                     'display': 'inline-block'},
                         className='four columns'),
             ],className='row',
