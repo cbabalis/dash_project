@@ -28,6 +28,8 @@ import pdb
 my_path = 'matrices_to_show/'
 onlyfiles = [f for f in listdir(my_path) if isfile(join(my_path, f))]
 
+sub_text = 'Ετήσια παραγωγή νωπών και μεταποιημένων αγροτικών προϊόντων και ζωοτροφών σε επίπεδο περιφερειακών ενοτήτων'
+
 matrix_text = '''
 #### Ετήσια παραγωγή νωπών και μεταποιημένων αγροτικών προϊόντων και ζωοτροφών σε επίπεδο περιφερειακών ενοτήτων
 '''
@@ -354,142 +356,151 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
     html.Div([
-        html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
-        #html.Hr(),
-        # text here
         html.Div([
-        dcc.Markdown(matrix_text),
-        
-        ],
-                className='row'),
-    ],style = {'background-image':image_orig,
-                                    'background-size':'cover',
-                                    'background-position':'right'}),
-    # filters here
-    html.Div([
+            html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
+            #html.Hr(),
+            # text here
+            # html.Div([
+            # dcc.Markdown(matrix_text),
+            # ],
+            #   className='row'),
+            html.H4(sub_text, style={'textAlign':'center',
+                                    #'font-weight': 'bold',
+                                    'font-style':'italic',
+                                    'background-color':'#aab994',
+                                    }),
+        ]),
+        # filters here
         html.Div([
             html.Div([
-                html.Label("ΔΙΑΘΕΣΙΜΑ ΔΕΔΟΜΕΝΑ",
-                    style={'font-weight': 'bold',
-                            'fontSize' : '17px',
-                            'margin-left':'auto',
-                            'margin-right':'auto',
-                            'display':'block'}),
-                dcc.Dropdown(id='availability-radio',
-                             placeholder='Βήμα 1ο: Επιλέξτε Σύνολο Δεδομένων',
-                            style={"display": "block",
-                    "margin-left": "auto",
-                    "margin-right": "auto",
-                    'width': '430px',
-                    # "width":"60%"
-                    }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
-            ], className='four columns'),
-            html.Div([
-                html.Label("ΕΠΙΛΟΓΗ ΧΡΟΝΙΚΗΣ ΠΕΡΙΟΔΟΥ",
+                html.Div([
+                    html.Label("ΔΙΑΘΕΣΙΜΑ ΔΕΔΟΜΕΝΑ",
                         style={'font-weight': 'bold',
                                 'fontSize' : '17px',
-                                'margin-left': '30px'}),
-                dcc.Dropdown(id='year-radio',
-                             placeholder='Βήμα 2ο: Επιλέξτε Χρονιά',
-                             style={"display": "block",
-                    "margin-left": "15px",
-                    "margin-right": "auto",
-                    'width': '430px',
-                    # "width":"60%"
-                    }),
-                #html.Div(id='year-radio'),
-            ], className='four columns'),
-            # button here
-            html.Div([
-                dcc.ConfirmDialogProvider(children=html.Button(
-                'Οδηγίες Χρήσης',
-                #style={'float':'right',
-                #        'margin':'auto',}
-                #        #'padding-left':'50px'}
-                style=simple_button_style
-            ),
-            id='danger-danger-provider',
-            message=help_text,
-        ),
-        html.Div(id='output-provider')
-            ],
-            style={'padding-top':'30px'}),
-        ], className='row',
-                 style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
-        html.Hr(),
-        html.Div([
-            # geospatial filters
-            html.Div([
-                html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ"),
-                html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
-                        style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
-                dcc.Dropdown(id='countries-radio',
-                                options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
-                                value='',
-                                placeholder='Βήμα 3ο: Επιλέξτε Επίπεδο Ανάλυσης',),
-                html.Label("ΠΕΡΙΟΧΕΣ",
-                        style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
-                dcc.Dropdown(id='cities-radio',
-                             multi=True,
-                             options=[],
-                             placeholder='Βήμα 5ο: Επιλέξτε Περιοχές Ενδιαφέροντος',),
-                ],
-                                        style = {'width': '440px',
-                                            'fontSize' : '15px',
-                                            'padding-left' : '50px',
-                                            'display': 'inline-block',
-                                            }),
-                # product filters
+                                'margin-left':'auto',
+                                'margin-right':'auto',
+                                'display':'block'}),
+                    dcc.Dropdown(id='availability-radio',
+                                placeholder='Βήμα 1ο: Επιλέξτε Σύνολο Δεδομένων',
+                                style={"display": "block",
+                        "margin-left": "auto",
+                        "margin-right": "auto",
+                        #'width': '430px',
+                        # "width":"60%"
+                        }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
+                ], className='four columns'),
                 html.Div([
-                    html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ"),
-                    html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
+                    html.Label("ΕΠΙΛΟΓΗ ΧΡΟΝΙΚΗΣ ΠΕΡΙΟΔΟΥ",
+                            style={'font-weight': 'bold',
+                                    'fontSize' : '17px',
+                                    'margin-left': 'auto'}),
+                    dcc.Dropdown(id='year-radio',
+                                placeholder='Βήμα 2ο: Επιλέξτε Χρονιά',
+                                style={"display": "block",
+                        #"margin-left": "auto",
+                        #"margin-right": "auto",
+                        #'width': '430px',
+                        # "width":"60%"
+                        }),
+                    #html.Div(id='year-radio'),
+                ], className='four columns'),
+                # button here
+                html.Div([
+                    dcc.ConfirmDialogProvider(
+                        children=html.Button(
+                            'Οδηγίες Χρήσης',
+                            #style={'float':'right',
+                            #        'margin':'auto',}
+                            #        #'padding-left':'50px'}
+                            style=simple_button_style
+                        ),
+                    id='danger-danger-provider',
+                    message=help_text,
+                ),
+            html.Div(id='output-provider')
+                ],style={'padding-top':'30px',
+                        "margin-left": "auto",
+                        "margin-right": "auto",},
+                    className='four columns'),
+            ], className='row',
+                    style = {'padding-left' : '50px', 'display':'flex'}),#style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
+            #html.Hr(),
+            html.Div([
+                # geospatial filters
+                html.Div([
+                    html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ", style={'font-weight': 'bold'}),
+                    html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
                             style={'font-weight': 'bold',
                                     'fontSize' : '17px'}),
-                    dcc.Dropdown(id='products-radio',
-                                    options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
+                    dcc.Dropdown(id='countries-radio',
+                                    options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
                                     value='',
-                                    placeholder='Βήμα 4ο: Επιλέξτε Επίπεδο Ανάλυσης Προϊόντος',),
-                    # comment title here
-                    #html.Label("ΠΡΟΪΟΝ",
-                    #        style={'font-weight': 'bold',
-                    #                'fontSize' : '17px'}),
-                    # end of comments.
-                    dcc.Dropdown(id='products-radio-val',
+                                    placeholder='Βήμα 3ο: Επιλέξτε Επίπεδο Ανάλυσης',),
+                    html.Label("ΠΕΡΙΟΧΕΣ",
+                            style={'font-weight': 'bold',
+                                    'fontSize' : '17px'}),
+                    dcc.Dropdown(id='cities-radio',
                                 multi=True,
                                 options=[],
-                                placeholder='Βήμα 6ο: Επιλέξτε Προϊόν ή Κατηγορία',
-                                ),],
-                                            style = {'width': '440px',
-                                                'fontSize' : '15px',
-                                                'padding-left' : '50px',
-                                                'display': 'inline-block'}),
-                # values filters
-                html.Div([
-                    html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ"),
-                    html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
-                            style={'font-weight': 'bold',
-                                    'fontSize' : '17px'}),
-                    dcc.Dropdown(id='chart-choice',
-                                    options=[{'label': k, 'value': k} for k in chart_types],
-                                    value='Γράφημα Στήλης',
-                                    ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
-                    html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
-                            style={'font-weight': 'bold',
-                                    'fontSize' : '17px'}),
-                    dcc.Dropdown(id='column-sum',
-                                    options=[{'label': k, 'value': k} for k in vals_categories],
-                                    value=''),
-                    ],style = {'width': '350px',
-                                                'fontSize' : '15px',
-                                                'padding-left' : '50px',
-                                                'display': 'inline-block'}),
-        ],className='row',
-        style = {'display' : 'flex'}),
-    ],style = {'background-image':image,
-                                    'background-size':'cover',
-                                    'background-position':'right'}),
+                                placeholder='Βήμα 5ο: Επιλέξτε Περιοχές Ενδιαφέροντος',),
+                    ],style = {#'width': '440px',
+                                'fontSize' : '15px',
+                                'padding-left' : '50px',
+                                'display': 'inline-block',
+                                },
+                    className='four columns',),
+                    # product filters
+                    html.Div([
+                        html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ", style={'font-weight': 'bold'}),
+                        html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
+                                style={'font-weight': 'bold',
+                                        'fontSize' : '17px'}),
+                        dcc.Dropdown(id='products-radio',
+                                        options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
+                                        value='',
+                                        placeholder='Βήμα 4ο: Επιλέξτε Επίπεδο Ανάλυσης Προϊόντος',),
+                        # comment title here
+                        #html.Label("ΠΡΟΪΟΝ",
+                        #        style={'font-weight': 'bold',
+                        #                'fontSize' : '17px'}),
+                        # end of comments.
+                        dcc.Dropdown(id='products-radio-val',
+                                    multi=True,
+                                    options=[],
+                                    placeholder='Βήμα 6ο: Επιλέξτε Προϊόν ή Κατηγορία',
+                        ),],
+                        style = {#'width': '440px',
+                            'fontSize' : '15px',
+                            'padding-left' : '50px',
+                            'display': 'inline-block'},
+                        className='four columns'),
+                    # values filters
+                    html.Div([
+                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold'}),
+                        html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
+                                style={'font-weight': 'bold',
+                                        'fontSize' : '17px'}),
+                        dcc.Dropdown(id='chart-choice',
+                                        options=[{'label': k, 'value': k} for k in chart_types],
+                                        value='Γράφημα Στήλης',
+                                        ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
+                        html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
+                                style={'font-weight': 'bold',
+                                        'fontSize' : '17px'}),
+                        dcc.Dropdown(id='column-sum',
+                                        options=[{'label': k, 'value': k} for k in vals_categories],
+                                        value=''),
+                        ],style = {#'width': '350px',
+                                    'fontSize' : '15px',
+                                    'padding-left' : '50px',
+                                    'display': 'inline-block'},
+                        className='four columns'),
+            ],className='row',
+            style = {'display' : 'flex'}),
+        ]),
+    ],style = {'background-image':image_orig,
+                        'background-size':'cover',
+                        'background-position':'right'}),
     # time slider here
     html.Div([
     html.H5("Επιλογή Περιόδου"),
