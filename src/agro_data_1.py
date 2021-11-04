@@ -132,6 +132,16 @@ white_button_style = {'background-color': 'white',
                       'margin-top': '50px',
                       'margin-left': '50px'}
 
+simple_button_style = {'background-color': 'white',
+                      'color': 'black',
+                      'float':'right',
+                      'margin':'auto'}
+
+simple_filter_style = {'width': '440px',
+                    'fontSize' : '15px',
+                    'padding-left' : '50px',
+                    'display': 'inline-block'}
+
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
     if selected_country == '':
@@ -349,15 +359,7 @@ app.layout = html.Div([
         # text here
         html.Div([
         dcc.Markdown(matrix_text),
-        dcc.ConfirmDialogProvider(children=html.Button(
-                'Οδηγίες Χρήσης',
-                #style={'float': 'right','margin': 'auto'}
-                style=white_button_style
-            ),
-            id='danger-danger-provider',
-            message=help_text,
-        ),
-        html.Div(id='output-provider')
+        
         ],
                 className='row'),
     ],style = {'background-image':image_orig,
@@ -378,17 +380,40 @@ app.layout = html.Div([
                             style={"display": "block",
                     "margin-left": "auto",
                     "margin-right": "auto",
+                    'width': '430px',
                     # "width":"60%"
                     }), # style solution here: https://stackoverflow.com/questions/51193845/moving-objects-bar-chart-using-dash-python
-            ], className='six columns'),
+            ], className='four columns'),
             html.Div([
                 html.Label("ΕΠΙΛΟΓΗ ΧΡΟΝΙΚΗΣ ΠΕΡΙΟΔΟΥ",
                         style={'font-weight': 'bold',
-                                'fontSize' : '17px'}),
+                                'fontSize' : '17px',
+                                'margin-left': '30px'}),
                 dcc.Dropdown(id='year-radio',
-                             placeholder='Βήμα 2ο: Επιλέξτε Χρονιά',),
+                             placeholder='Βήμα 2ο: Επιλέξτε Χρονιά',
+                             style={"display": "block",
+                    "margin-left": "15px",
+                    "margin-right": "auto",
+                    'width': '430px',
+                    # "width":"60%"
+                    }),
                 #html.Div(id='year-radio'),
-            ], className='three columns'),
+            ], className='four columns'),
+            # button here
+            html.Div([
+                dcc.ConfirmDialogProvider(children=html.Button(
+                'Οδηγίες Χρήσης',
+                #style={'float':'right',
+                #        'margin':'auto',}
+                #        #'padding-left':'50px'}
+                style=simple_button_style
+            ),
+            id='danger-danger-provider',
+            message=help_text,
+        ),
+        html.Div(id='output-provider')
+            ],
+            style={'padding-top':'30px'}),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
         html.Hr(),
