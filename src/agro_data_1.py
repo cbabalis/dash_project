@@ -428,7 +428,7 @@ app.layout = html.Div([
             html.Div([
                 # geospatial filters
                 html.Div([
-                    html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ", style={'font-weight': 'bold'}),
+                    html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ", style={'font-weight': 'bold', 'background-color':'#aab994'}),
                     html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
                             style={'font-weight': 'bold',
                                     'fontSize' : '17px'}),
@@ -451,7 +451,7 @@ app.layout = html.Div([
                     className='four columns',),
                     # product filters
                     html.Div([
-                        html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ", style={'font-weight': 'bold'}),
+                        html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ", style={'font-weight': 'bold','background-color':'#aab994'}),
                         html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
                                 style={'font-weight': 'bold',
                                         'fontSize' : '17px'}),
@@ -476,7 +476,7 @@ app.layout = html.Div([
                         className='four columns'),
                     # values filters
                     html.Div([
-                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold'}),
+                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold', 'color':'white'}),
                         html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
                                 style={'font-weight': 'bold',
                                         'fontSize' : '17px'}),
