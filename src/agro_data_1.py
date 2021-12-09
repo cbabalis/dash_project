@@ -91,10 +91,14 @@ def load_matrix(selected_matrix, pre_path=''):
     return sample_df
 
 
-def _create_results_name():
+def _create_results_name(user_input=''):
     now = datetime.now()
     created_on = now.strftime(("%Y-%m-%d-%H-%M-%S"))
-    results_name = 'custom_file_' + str(created_on) + '.csv'
+    results_name = user_input
+    if not user_input:
+        results_name = 'custom_file_' + str(created_on) + '.csv'
+    else:
+        results_name = user_input + "_" + str(created_on) + '.csv'
     return results_name
 
 
@@ -562,6 +566,9 @@ app.layout = html.Div([
         dcc.Graph(id='map-fig'),
     ], style = {'display': 'inline-block', 'height': '178%', 'width': '95%'}),
     # end of maps
+    html.Hr(),
+    html.Label("Όνομα Σεναρίου Προς Διερεύνηση"),
+    dcc.Input(id="custom_title_input", type="text", placeholder="", style={'marginRight':'10px'}),
     html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
     html.Div(id='download-link'),
     html.Div(
@@ -816,10 +823,11 @@ def update_range_slider(value):
 
 
 @app.callback(Output('download-link', 'children'),
-              Input('csv_to_disk', 'n_clicks'),)
-def save_df_conf_to_disk(btn_click):
+              Input('csv_to_disk', 'n_clicks'),
+              State('custom_title_input', 'value'))
+def save_df_conf_to_disk(btn_click, title_input_val):
     # compute timestamp and name the filename.
-    results_name = _create_results_name()
+    results_name = _create_results_name(title_input_val)
     fpath = results_path + results_name
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
