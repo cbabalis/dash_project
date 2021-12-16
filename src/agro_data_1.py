@@ -20,10 +20,17 @@ import os
 import plotly.graph_objects as go
 import time
 import numpy as np
-
-
+import dash_auth
 
 import pdb
+
+
+############# save in file/db. passwords!!
+VALID_USERNAME_PASSWORD_PAIRS = {
+    'user':'test',
+    'user2':'test2'
+}
+#########################################
 
 my_path = 'matrices_to_show/'
 onlyfiles = [f for f in listdir(my_path) if isfile(join(my_path, f))]
@@ -100,6 +107,22 @@ def _create_results_name(user_input=''):
     else:
         results_name = user_input + "_" + str(created_on) + '.csv'
     return results_name
+
+
+def set_filepath(username, results_path, results_name):
+    """ Method to create (if it does not exist) a filepath for the files to
+    be saved.
+    IMPORTANT!
+    I 've changed the basic_auth module according to me in order for it to return
+    the username.
+    :param username: the username (custom method for me)
+    :param
+    """
+    print("username is ", username)
+    folder_path = results_path + username + '/'
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    return folder_path + results_name
 
 
 sample_df = []
@@ -357,6 +380,11 @@ def _get_filtered_dff(sample_df, x_col, x_col_vals, y_col, y_col_vals, col_sum, 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
+
 
 app.layout = html.Div([
     html.Div([
@@ -792,6 +820,7 @@ def set_enhanced_display_map(n_clicks, colorscale, basemap, x_col, y_col, col_su
               Input('danger-danger-provider', 'submit_n_clicks'))
 def update_output(submit_n_clicks):
     """ documentation: https://dash.plotly.com/dash-core-components/confirmdialogprovider"""
+    pdb.set_trace()
     if not submit_n_clicks:
         return ''
     return """
@@ -828,7 +857,7 @@ def update_range_slider(value):
 def save_df_conf_to_disk(btn_click, title_input_val):
     # compute timestamp and name the filename.
     results_name = _create_results_name(title_input_val)
-    fpath = results_path + results_name
+    fpath = set_filepath(auth.get_current_username(), results_path, results_name)
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'csv_to_disk' in changed_id:
         custom_prod_cons = create_prod_cons_file(download_df, download_cons_df)
@@ -847,6 +876,7 @@ def save_df_conf_to_disk(btn_click, title_input_val):
 )
 def func(n_clicks):
     return send_data_frame(download_df.to_csv, "mydf.csv") # dash_extensions.snippets: send_data_frame
+
 
 
 if __name__ == "__main__":
