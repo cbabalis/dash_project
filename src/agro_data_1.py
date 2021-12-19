@@ -21,6 +21,7 @@ import plotly.graph_objects as go
 import time
 import numpy as np
 import dash_auth
+import dash_bootstrap_components as dbc
 
 import pdb
 
@@ -66,6 +67,14 @@ help_text = '''
 
 Το κουμπί ΑΠΟΘΗΚΕΥΣΗ ΠΑΡΑΜΕΤΡΩΝ σώζει τον πίνακα κατόπιν της εφαρμογής των φίλτρων στον δίσκο (δεν είναι διαθέσιμη η λειτουργικότητα για όλους τους χρήστες).
 '''
+
+od_button_style = {'background-color': '#37D1F0',
+                    'color': 'black',
+                    'font-size': '15px',
+                    'height': '50px',
+                    'width': '500px',
+                    'margin-top': '50px',
+                    'margin-left': '50px'}
 
 
 def convert_weeks_to_units(df):
@@ -595,20 +604,26 @@ app.layout = html.Div([
     ], style = {'display': 'inline-block', 'height': '178%', 'width': '95%'}),
     # end of maps
     html.Hr(),
-    html.Label("Όνομα Σεναρίου Προς Διερεύνηση"),
-    dcc.Input(id="custom_title_input", type="text", placeholder="", style={'marginRight':'10px'}),
-    html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
-    html.Div(id='download-link'),
-    html.Div(
-        [
-            html.Button("Αποθήκευση αποτελεσμάτων με βάση τις επιλογές του χρήστη σε αρχείο CSV", id="btn_csv"),
+    html.Div([
+        html.Div([
+            html.Label("Όνομα Σεναρίου Προς Διερεύνηση (προστίθεται αυτόματα η ημερομηνία και ώρα)"),
+            dcc.Input(id="custom_title_input", type="text", placeholder="", style={'marginRight':'10px'}),
+            html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
+            html.Button("Αποθήκευση σεναρίου σε αρχείο CSV (προαιρετικό)", id="btn_csv"),
+            html.Div(id='download-link'),
             Download(id="download-dataframe-csv"),
-        ],
-    ),
-    html.Div(
-        html.A(html.Button("Μετάβαση στον υπολογισμό μητρώου προέλευσης-προορισμού", className='three columns'),
+        ], className='row', style={'margin-bottom': '10px',
+                                    'textAlign':'center',
+                                    'width': '1020px',
+                                    'margin':'auto'}),
+    ]),
+    html.Div([
+        html.A(html.Button("Υπολογισμός Μητρώου Προέλευσης-Προορισμού", style=od_button_style),
         href='http://147.102.154.65:8056/'), # https://github.com/plotly/dash-html-components/issues/16
-    )
+    ], className='row', style={'margin-bottom': '10px',
+                                    'textAlign':'center',
+                                    'width': '1020px',
+                                    'margin':'auto'})
 ])
 
 
@@ -820,7 +835,6 @@ def set_enhanced_display_map(n_clicks, colorscale, basemap, x_col, y_col, col_su
               Input('danger-danger-provider', 'submit_n_clicks'))
 def update_output(submit_n_clicks):
     """ documentation: https://dash.plotly.com/dash-core-components/confirmdialogprovider"""
-    pdb.set_trace()
     if not submit_n_clicks:
         return ''
     return """
