@@ -68,14 +68,6 @@ help_text = '''
 Το κουμπί ΑΠΟΘΗΚΕΥΣΗ ΠΑΡΑΜΕΤΡΩΝ σώζει τον πίνακα κατόπιν της εφαρμογής των φίλτρων στον δίσκο (δεν είναι διαθέσιμη η λειτουργικότητα για όλους τους χρήστες).
 '''
 
-od_button_style = {'background-color': '#37D1F0',
-                    'color': 'black',
-                    'font-size': '15px',
-                    'height': '50px',
-                    'width': '500px',
-                    'margin-top': '50px',
-                    'margin-left': '50px'}
-
 
 def convert_weeks_to_units(df):
     # convert to date
@@ -163,8 +155,8 @@ month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβ
 colorscales = px.colors.named_colorscales()
 basemaps = ["white-bg", "open-street-map", "carto-positron", "carto-darkmatter", "stamen-terrain", "stamen-toner", "stamen-watercolor"]
 
-white_button_style = {'background-color': 'white',
-                      'color': 'black',
+white_button_style = {'background-color': '#177248', #'white',
+                      'color': '#E9FFFF', #'black',
                       #'height': '50px',
                       #'width': '100px',
                       'margin-top': '50px',
@@ -174,6 +166,14 @@ simple_button_style = {'background-color': 'white',
                       'color': 'black',
                       'float':'right',
                       'margin':'auto'}
+
+od_button_style = {'background-color': '#177248', #'white',
+                      'color': '#E9FFFF', #'black',
+                    'font-size': '15px',
+                    'height': '50px',
+                    'width': '730px',
+                    'margin-top': '50px',
+                    'margin-left': '50px'}
 
 simple_filter_style = {'width': '440px',
                     'fontSize' : '15px',
@@ -606,23 +606,23 @@ app.layout = html.Div([
     html.Hr(),
     html.Div([
         html.Div([
-            html.Label("Όνομα Σεναρίου Προς Διερεύνηση (προστίθεται αυτόματα η ημερομηνία και ώρα)"),
+            html.Label("Εισάγετε το όνομα του αρχείου στο οποίο θα αποθηκευθεί το προς διερεύνηση σενάριο (προστίθεται αυτόματα η ημερομηνία και ώρα)"),
             dcc.Input(id="custom_title_input", type="text", placeholder="", style={'marginRight':'10px'}),
-            html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0),
-            html.Button("Αποθήκευση σεναρίου σε αρχείο CSV (προαιρετικό)", id="btn_csv"),
+            html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0, style=white_button_style),
+            html.Button("Αποθήκευση σεναρίου σε αρχείο CSV (προαιρετικό)", id="btn_csv", style=white_button_style),
             html.Div(id='download-link'),
             Download(id="download-dataframe-csv"),
         ], className='row', style={'margin-bottom': '10px',
-                                    'textAlign':'center',
-                                    'width': '1020px',
-                                    'margin':'auto'}),
+                                    #'textAlign':'center',
+                                    #'width': '1020px',
+                                    'margin':'10px'}),
     ]),
     html.Div([
-        html.A(html.Button("Υπολογισμός Μητρώου Προέλευσης-Προορισμού", style=od_button_style),
+        html.A(html.Button("ΣΥΝΕΧΕΙΑ ΣΤΗΝ ΕΦΑΡΜΟΓΗ ΥΠΟΛΟΓΙΣΜΟΥ ΜΗΤΡΩΟΥ ΠΡΟΕΛΕΥΣΗΣ-ΠΡΟΟΡΙΣΜΟΥ", style=od_button_style),
         href='http://147.102.154.65:8056/'), # https://github.com/plotly/dash-html-components/issues/16
     ], className='row', style={'margin-bottom': '10px',
-                                    'textAlign':'center',
-                                    'width': '1020px',
+                                    #'textAlign':'center',
+                                    #'width': '1020px',
                                     'margin':'auto'})
 ])
 
@@ -879,7 +879,7 @@ def save_df_conf_to_disk(btn_click, title_input_val):
         custom_prod_cons.to_csv(fpath, sep='\t', index=False)
         msg = 'Δημιουργήθηκε αρχείο παραγωγών-καταναλώσεων με όνομα ' + results_name
     else:
-        msg = 'Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
+        msg = '' #Δεν αποθηκεύθηκαν οι αλλαγές σε αρχείο.'
     return html.Div(msg)
 
 
