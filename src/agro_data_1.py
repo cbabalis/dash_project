@@ -152,14 +152,15 @@ vals_categories = ['Ποσότητα (σε τόνους)', 'Έτος Αναφο�
 chart_types = ['Γράφημα Στήλης', 'Γράφημα Πίτας']
 month_dict = {0: 'Όλοι οι μήνες', 1:'Ιανουάριος', 2:'Φεβρουάριος', 3:'Μάρτιος', 4:'Απρίλιος', 5:'Μάιος', 6:'Ιούνιος', 7:'Ιούλιος', 8:'Αύγουστος', 9:'Σεπτέμβριος', 10:'Οκτώβριος', 11:'Νοέμβριος', 12:'Δεκέμβριος'}
 
-colorscales = px.colors.named_colorscales()
-basemaps = ["white-bg", "open-street-map", "carto-positron", "carto-darkmatter", "stamen-terrain", "stamen-toner", "stamen-watercolor"]
+colorscales = ['speed', 'turbid', 'fall', 'greens', 'blugrn'] #px.colors.named_colorscales()
+basemaps = ["white-bg", "stamen-watercolor", "open-street-map"] #["white-bg", "open-street-map", "carto-positron", "carto-darkmatter", "stamen-terrain", "stamen-toner", "stamen-watercolor"]
 
 white_button_style = {'background-color': '#177248', #'white',
                       'color': '#E9FFFF', #'black',
                       #'height': '50px',
                       #'width': '100px',
-                      'margin-top': '50px',
+                      'margin-top': '10px',
+                       'margin-bottom': '50px',
                       'margin-left': '50px'}
 
 simple_button_style = {'background-color': 'white',
@@ -167,12 +168,12 @@ simple_button_style = {'background-color': 'white',
                       'float':'right',
                       'margin':'auto'}
 
-od_button_style = {'background-color': '#177248', #'white',
+od_button_style = {'background-color': '#16971F', #'white',
                       'color': '#E9FFFF', #'black',
                     'font-size': '15px',
                     'height': '50px',
                     'width': '730px',
-                    'margin-top': '50px',
+                    'margin-top': '10px',
                     'margin-left': '50px'}
 
 simple_filter_style = {'width': '440px',
@@ -501,9 +502,10 @@ app.layout = html.Div([
                                         value='',
                                         placeholder='Βήμα 4ο: Επιλέξτε Επίπεδο Ανάλυσης Προϊόντος',),
                         # comment title here
-                        #html.Label("ΠΡΟΪΟΝ",
-                        #        style={'font-weight': 'bold',
-                        #                'fontSize' : '17px'}),
+                        html.Label(".",
+                                style={'font-weight': 'bold',
+                                        'fontSize' : '17px',
+                                        'color': 'green'}),
                         # end of comments.
                         dcc.Dropdown(id='products-radio-val',
                                     multi=True,
@@ -517,7 +519,7 @@ app.layout = html.Div([
                         className='four columns'),
                     # values filters
                     html.Div([
-                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold', 'color':'white'}),
+                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold', 'background-color':'#aab994'}),
                         html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
                                 style={'font-weight': 'bold',
                                         'fontSize' : '17px'}),
@@ -560,15 +562,23 @@ app.layout = html.Div([
     # add button for parameters input here
     html.Button('ΥΠΟΛΟΓΙΣΜΟΣ ΚΑΙ ΠΡΟΒΟΛΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ', id='submit-val', n_clicks=0, style=white_button_style),
     # table here
-    html.Hr(),
-    html.Div(id='display-selected-table',  className='tableDiv'),
-    html.Hr(),
+    html.Div([
+        html.Label("Γραφήματα: Υποσύνολο παραγόμενων Αγροτικών Προϊόντων",
+                   style={'font-weight': 'bold',
+                            'fontSize' : '15px',
+                            'color' : '#C1B9B9'}),
+        html.Div(id='display-selected-table',  className='tableDiv'),
+    ]),
     # graphs here
-    html.Hr(),
-    dcc.Graph(id='indicator-graphic-multi-sum'),
-    html.Hr(),
+    html.Div([
+        dcc.Graph(id='indicator-graphic-multi-sum'),
+    ]),
     # maps here
     html.Div([
+        html.Label("Γραφήματα: Εμφάνιση Συγκέντρωσης Αγροτικών Προϊόντων στον ελλαδικό Χώρο",
+                   style={'font-weight': 'bold',
+                            'fontSize' : '15px',
+                            'color' : '#C1B9B9'}),
             html.Div([
                 html.Label("ΔΙΑΘΕΣΙΜΕΣ ΧΡΩΜΑΤΙΚΕΣ ΕΠΙΛΟΓΕΣ",
                     style={'font-weight': 'bold',
@@ -594,10 +604,11 @@ app.layout = html.Div([
                              options=[{"value":x, "label":x}
                                       for x in basemaps],
                              value='white-bg',),
-                html.Button('ΑΠΕΙΚΟΝΙΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ ΧΑΡΤΗ', id='submit-map', n_clicks=0, style=white_button_style),
             ], className='four columns'),
         ], className='row',
                  style= {'padding-left' : '50px'}), # closes the div for first line (matrix and year)
+    
+    html.Button('ΑΠΕΙΚΟΝΙΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ ΧΑΡΤΗ', id='submit-map', n_clicks=0, style=white_button_style),
     html.Hr(),
     html.Div(children=[
         dcc.Graph(id='map-fig'),
@@ -606,24 +617,39 @@ app.layout = html.Div([
     html.Hr(),
     html.Div([
         html.Div([
+            html.Label("Δημιουργία αρχείου Παραγωγών-Καταναλώσεων",
+                       style={'font-weight': 'bold',
+                            'fontSize' : '15px',
+                            'color' : '#C1B9B9'}),
+            html.H5("ΣΕΝΑΡΙΟ ΔΙΕΡΕΥΝΗΣΗΣ"),
             html.Label("Εισάγετε το όνομα του αρχείου στο οποίο θα αποθηκευθεί το προς διερεύνηση σενάριο (προστίθεται αυτόματα η ημερομηνία και ώρα)"),
+            html.Label("Προστίθενται οι παραγωγές για όλο το έτος και εισάγονται οι καταναλώσεις",
+                       style={'font-style': 'italic',
+                            'fontSize' : '12px',}),
+            html.Label("Εισαγωγή Ονόματος",
+                       style={'font-style': 'bold',
+                            'fontSize' : '18px',}),
             dcc.Input(id="custom_title_input", type="text", placeholder="", style={'marginRight':'10px'}),
             html.Button('Δημιουργία Σεναρίου Προς Διερεύνηση', id='csv_to_disk', n_clicks=0, style=white_button_style),
-            html.Button("Αποθήκευση σεναρίου σε αρχείο CSV (προαιρετικό)", id="btn_csv", style=white_button_style),
+            #html.Button("Αποθήκευση σεναρίου σε αρχείο CSV (προαιρετικό)", id="btn_csv", style=white_button_style),
             html.Div(id='download-link'),
-            Download(id="download-dataframe-csv"),
+            #Download(id="download-dataframe-csv"),
         ], className='row', style={'margin-bottom': '10px',
                                     #'textAlign':'center',
                                     #'width': '1020px',
                                     'margin':'10px'}),
     ]),
     html.Div([
+        html.Label("Σύγκριση αποθηκευμένου σεναρίου χρήσης με το μητρώο προέλευσης προορισμού μεταβαίνοντας στην σελίδα εφαρμογής υπολογισμού μητρώου προέλευσης προορισμού.",
+                   style={'font-weight': 'bold',
+                            'fontSize' : '15px',}),
         html.A(html.Button("ΣΥΝΕΧΕΙΑ ΣΤΗΝ ΕΦΑΡΜΟΓΗ ΥΠΟΛΟΓΙΣΜΟΥ ΜΗΤΡΩΟΥ ΠΡΟΕΛΕΥΣΗΣ-ΠΡΟΟΡΙΣΜΟΥ", style=od_button_style),
         href='http://147.102.154.65:8056/'), # https://github.com/plotly/dash-html-components/issues/16
     ], className='row', style={'margin-bottom': '10px',
                                     #'textAlign':'center',
                                     #'width': '1020px',
-                                    'margin':'auto'})
+                                    'margin':'auto',
+                                    'background-color':'#EAF9E2'})
 ])
 
 
@@ -722,6 +748,9 @@ def set_display_table(n_clicks, selected_country, selected_city, selected_prod_c
              selected_columns=[],
              selected_rows=[],
              hidden_columns=['LastDayWeek', 'week'],
+             export_format='xlsx',
+             export_headers='display',
+             merge_duplicate_headers=True,
             #  page_action="native",
             #  page_current= 0,
              page_size= 10,
