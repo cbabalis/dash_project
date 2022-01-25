@@ -133,7 +133,7 @@ MONTH = 'Μήνας'
 REGIONAL_UNITS = 'Περ. Ενότητες (NUTS3)'
 # doc for image: https://community.plotly.com/t/background-image/21199/5
 #image = 'url(http://147.102.154.65/enirisst/images/ampeli-dash.png)'
-image_orig = 'url("assets/ampeli-dash.png")'
+image_orig = 'url("assets/background.png")' #'url("assets/ampeli-dash.png")'
 image = 'url("assets/canada-crops-banner.jpg")'
 
 results_path = '../od-dash/data/prod_cons/'
@@ -180,6 +180,10 @@ simple_filter_style = {'width': '440px',
                     'fontSize' : '15px',
                     'padding-left' : '50px',
                     'display': 'inline-block'}
+
+label_style = {'font-weight': 'bold',
+                'fontSize' : '17px',
+                'color':'white'}
 
 
 def get_col_rows_data(selected_country, selected_city, sample_df):
@@ -399,7 +403,7 @@ auth = dash_auth.BasicAuth(
 app.layout = html.Div([
     html.Div([
         html.Div([
-            html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center'}),
+            html.H1("Βάση Δεδομένων Αγροτικών Προϊόντων",  style={'textAlign':'center', 'color':'#BBFFA7'}),
             #html.Hr(),
             # text here
             # html.Div([
@@ -409,7 +413,7 @@ app.layout = html.Div([
             html.H4(sub_text, style={'textAlign':'center',
                                     #'font-weight': 'bold',
                                     'font-style':'italic',
-                                    'background-color':'#aab994',
+                                    'background-color':'#BBFFA7',
                                     }),
         ]),
         # filters here
@@ -421,7 +425,8 @@ app.layout = html.Div([
                                 'fontSize' : '17px',
                                 'margin-left':'auto',
                                 'margin-right':'auto',
-                                'display':'block'}),
+                                'display':'block',
+                                'color':'white'}),
                     dcc.Dropdown(id='availability-radio',
                                 placeholder='Βήμα 1ο: Επιλέξτε Σύνολο Δεδομένων',
                                 style={"display": "block",
@@ -435,7 +440,8 @@ app.layout = html.Div([
                     html.Label("ΕΠΙΛΟΓΗ ΧΡΟΝΙΚΗΣ ΠΕΡΙΟΔΟΥ",
                             style={'font-weight': 'bold',
                                     'fontSize' : '17px',
-                                    'margin-left': 'auto'}),
+                                    'margin-left': 'auto',
+                                    'color':'white'}),
                     dcc.Dropdown(id='year-radio',
                                 placeholder='Βήμα 2ο: Επιλέξτε Χρονιά',
                                 style={"display": "block",
@@ -470,17 +476,15 @@ app.layout = html.Div([
             html.Div([
                 # geospatial filters
                 html.Div([
-                    html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ", style={'font-weight': 'bold', 'background-color':'#aab994'}),
+                    html.H5("ΓΕΩΓΡΑΦΙΚΗ ΕΝΟΤΗΤΑ", style={'font-weight': 'bold', 'background-color':'#BBFFA7'}),
                     html.Label("ΚΩΔΙΚΟΠΟΙΗΣΗ - ΕΠΙΠΕΔΟ ΑΝΑΛΥΣΗΣ",
-                            style={'font-weight': 'bold',
-                                    'fontSize' : '17px'}),
+                            style=label_style),
                     dcc.Dropdown(id='countries-radio',
                                     options=[{'label': l, 'value': k} for l, k in zip(geospatial_names, geospatial_categories)],
                                     value='',
                                     placeholder='Βήμα 3ο: Επιλέξτε Επίπεδο Ανάλυσης',),
                     html.Label("ΠΕΡΙΟΧΕΣ",
-                            style={'font-weight': 'bold',
-                                    'fontSize' : '17px'}),
+                            style=label_style),
                     dcc.Dropdown(id='cities-radio',
                                 multi=True,
                                 options=[],
@@ -493,10 +497,9 @@ app.layout = html.Div([
                     className='four columns',),
                     # product filters
                     html.Div([
-                        html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ", style={'font-weight': 'bold','background-color':'#aab994'}),
+                        html.H5("ΑΓΡΟΤΙΚΑ ΠΡΟΪΟΝΤΑ", style={'font-weight': 'bold','background-color':'#BBFFA7'}),
                         html.Label("ΕΠΙΛΟΓΗ ΠΡΟΪΟΝΤΟΣ Ή ΚΑΤΗΓΟΡΙΑΣ ΠΡΟΪΟΝΤΩΝ",
-                                style={'font-weight': 'bold',
-                                        'fontSize' : '17px'}),
+                                style=label_style),
                         dcc.Dropdown(id='products-radio',
                                         options=[{'label': l, 'value': k} for l, k in zip(product_names, product_categories)],
                                         value='',
@@ -519,17 +522,15 @@ app.layout = html.Div([
                         className='four columns'),
                     # values filters
                     html.Div([
-                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold', 'background-color':'#aab994'}),
+                        html.H5("ΜΕΤΑΒΛΗΤΕΣ ΔΙΑΓΡΑΜΜΑΤΩΝ", style={'font-weight': 'bold', 'background-color':'#BBFFA7'}),
                         html.Label("ΕΠΙΛΟΓΗ ΤΥΠΟΥ ΓΡΑΦΗΜΑΤΟΣ",
-                                style={'font-weight': 'bold',
-                                        'fontSize' : '17px'}),
+                                style=label_style),
                         dcc.Dropdown(id='chart-choice',
                                         options=[{'label': k, 'value': k} for k in chart_types],
                                         value='Γράφημα Στήλης',
                                         ), #labelStyle={'display': 'inline-block', 'text-align': 'justify'}), this is about Radioitems
                         html.Label("ΣΤΑΤΙΣΤΙΚΑ ΣΤΟΙΧΕΙΑ",
-                                style={'font-weight': 'bold',
-                                        'fontSize' : '17px'}),
+                                style=label_style),
                         dcc.Dropdown(id='column-sum',
                                         options=[{'label': k, 'value': k} for k in vals_categories],
                                         value=''),
